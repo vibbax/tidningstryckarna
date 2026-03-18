@@ -1,45 +1,60 @@
-import { Newspaper, Layers, Settings } from "lucide-react";
-
 const services = [
   {
-    icon: Newspaper,
+    number: "01",
     title: "Tidningstryck",
-    description: "Vi trycker huvudsakligen tidningar i eurostandardformat, men erbjuder även mindre format vid behov. Tabloid, bilagor och tidsskrifter.",
+    description: "Vi trycker huvudsakligen tidningar i eurostandardformat, men erbjuder även mindre format vid behov.",
   },
   {
-    icon: Layers,
+    number: "02",
     title: "Hög kapacitet",
-    description: "Med vår högteknologiska maskinpark levererar vi stora upplagor snabbt och effektivt. Tryckeriet är öppet sex dagar i veckan.",
+    description: "Vår högteknologiska maskinpark levererar stora upplagor snabbt. Tabloid, bilagor och tidsskrifter.",
   },
   {
-    icon: Settings,
-    title: "Prepress & support",
-    description: "Vi erbjuder komplett prepress-stöd för att säkerställa bästa möjliga tryckresultat. Kontakta oss för specifikationer och annonsformat.",
+    number: "03",
+    title: "Prepress",
+    description: "Komplett prepress-stöd för bästa möjliga tryckresultat. Kontakta oss för specifikationer.",
   },
 ];
 
 const ServicesSection = () => {
   return (
-    <section id="tjanster" className="py-20 md:py-28 bg-paper">
-      <div className="container px-4">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <p className="font-body text-sm uppercase tracking-[0.2em] text-amber font-semibold mb-3">Tjänster</p>
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground leading-tight">
-            Vad vi erbjuder
-          </h2>
+    <section id="tjanster" className="bg-foreground text-primary-foreground">
+      <div className="container py-12 md:py-20">
+        <div className="grid md:grid-cols-12 gap-6 md:gap-0 mb-12">
+          <div className="md:col-span-5">
+            <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-primary-foreground/50">
+              Våra tjänster
+            </span>
+            <h2 className="font-display text-4xl md:text-5xl text-primary-foreground leading-[1] mt-3">
+              Vad vi<br /><span className="italic">erbjuder</span>
+            </h2>
+          </div>
+          <div className="md:col-span-7 md:flex md:items-end">
+            <p className="font-body text-sm text-primary-foreground/60 leading-relaxed max-w-md">
+              Med decenniers erfarenhet och modern teknik levererar vi tryck av högsta kvalitet till tidningar och publikationer i Norden.
+            </p>
+          </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {services.map((service) => (
+        <div className="border-t border-primary-foreground/20">
+          {services.map((service, i) => (
             <div
-              key={service.title}
-              className="bg-card rounded-lg p-8 shadow-card hover:shadow-elevated transition-shadow group"
+              key={service.number}
+              className="grid md:grid-cols-12 gap-4 md:gap-0 py-8 border-b border-primary-foreground/10 group hover:bg-primary-foreground/[0.03] transition-colors px-2 -mx-2"
             >
-              <div className="w-12 h-12 rounded bg-navy/10 flex items-center justify-center mb-5 group-hover:bg-navy transition-colors">
-                <service.icon className="w-6 h-6 text-navy group-hover:text-primary-foreground transition-colors" />
+              <div className="md:col-span-1">
+                <span className="font-mono text-xs text-red-ink">{service.number}</span>
               </div>
-              <h3 className="font-display text-xl font-bold text-foreground mb-3">{service.title}</h3>
-              <p className="font-body text-muted-foreground leading-relaxed">{service.description}</p>
+              <div className="md:col-span-4">
+                <h3 className="font-display text-2xl md:text-3xl text-primary-foreground group-hover:text-red-ink transition-colors">
+                  {service.title}
+                </h3>
+              </div>
+              <div className="md:col-span-7">
+                <p className="font-body text-sm text-primary-foreground/60 leading-relaxed">
+                  {service.description}
+                </p>
+              </div>
             </div>
           ))}
         </div>
