@@ -4,7 +4,7 @@ import { usePageContent, useUpdatePageContent } from "@/hooks/usePageContent";
 import { Settings, X, LogOut, Save, ChevronDown, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 
-// Define all editable sections per page
+// Complete field schema matching all editable text on every page
 const PAGE_SCHEMA: Record<string, { label: string; sections: { key: string; label: string; fields: { key: string; label: string; multiline?: boolean }[] }[] }> = {
   home: {
     label: "Startsida",
@@ -14,18 +14,65 @@ const PAGE_SCHEMA: Record<string, { label: string; sections: { key: string; labe
         label: "Hero",
         fields: [
           { key: "dateline", label: "Dateline" },
-          { key: "title", label: "Rubrik" },
-          { key: "subtitle", label: "Underrubrik" },
+          { key: "title_line1", label: "Rubrik rad 1" },
+          { key: "title_line2", label: "Rubrik rad 2 (kursiv)" },
+          { key: "title_line3", label: "Rubrik rad 3" },
+          { key: "subtitle", label: "Underrubrik", multiline: true },
           { key: "cta", label: "Knapptext" },
+          { key: "image_caption", label: "Bildtext" },
         ],
       },
       {
         key: "about",
-        label: "Om oss",
+        label: "Om tryckeriet",
         fields: [
           { key: "dateline", label: "Dateline" },
           { key: "title", label: "Rubrik" },
-          { key: "text", label: "Brödtext", multiline: true },
+          { key: "stat1_number", label: "Statistik 1 siffra" },
+          { key: "stat1_label", label: "Statistik 1 etikett" },
+          { key: "stat2_number", label: "Statistik 2 siffra" },
+          { key: "stat2_label", label: "Statistik 2 etikett" },
+          { key: "text1", label: "Brödtext stycke 1", multiline: true },
+          { key: "text2", label: "Brödtext stycke 2", multiline: true },
+          { key: "image_caption", label: "Bildtext" },
+        ],
+      },
+      {
+        key: "services",
+        label: "Tjänster",
+        fields: [
+          { key: "dateline", label: "Dateline" },
+          { key: "title", label: "Rubrik" },
+          { key: "intro", label: "Intro", multiline: true },
+          { key: "service1_title", label: "Tjänst 1 titel" },
+          { key: "service1_desc", label: "Tjänst 1 beskrivning", multiline: true },
+          { key: "service2_title", label: "Tjänst 2 titel" },
+          { key: "service2_desc", label: "Tjänst 2 beskrivning", multiline: true },
+          { key: "service3_title", label: "Tjänst 3 titel" },
+          { key: "service3_desc", label: "Tjänst 3 beskrivning", multiline: true },
+        ],
+      },
+      {
+        key: "environment",
+        label: "Miljö",
+        fields: [
+          { key: "dateline", label: "Dateline" },
+          { key: "title", label: "Rubrik" },
+          { key: "text1", label: "Brödtext stycke 1", multiline: true },
+          { key: "text2", label: "Brödtext stycke 2", multiline: true },
+        ],
+      },
+      {
+        key: "contact",
+        label: "Kontakt",
+        fields: [
+          { key: "dateline", label: "Dateline" },
+          { key: "title", label: "Rubrik" },
+          { key: "intro", label: "Intro" },
+          { key: "email", label: "E-post" },
+          { key: "phone", label: "Telefon" },
+          { key: "phone_note", label: "Telefon-anteckning" },
+          { key: "address", label: "Besöksadress" },
         ],
       },
     ],
@@ -34,11 +81,27 @@ const PAGE_SCHEMA: Record<string, { label: string; sections: { key: string; labe
     label: "Om oss",
     sections: [
       {
+        key: "header",
+        label: "Sidhuvud",
+        fields: [
+          { key: "dateline", label: "Dateline" },
+          { key: "title", label: "Rubrik" },
+        ],
+      },
+      {
         key: "intro",
         label: "Intro",
         fields: [
           { key: "dateline", label: "Dateline" },
-          { key: "title", label: "Rubrik" },
+          { key: "text1", label: "Brödtext stycke 1", multiline: true },
+          { key: "text2", label: "Brödtext stycke 2", multiline: true },
+        ],
+      },
+      {
+        key: "equipment",
+        label: "Utrustning",
+        fields: [
+          { key: "dateline", label: "Dateline" },
           { key: "text", label: "Brödtext", multiline: true },
         ],
       },
@@ -48,12 +111,22 @@ const PAGE_SCHEMA: Record<string, { label: string; sections: { key: string; labe
     label: "Prepress",
     sections: [
       {
-        key: "intro",
-        label: "Intro",
+        key: "header",
+        label: "Sidhuvud",
         fields: [
           { key: "dateline", label: "Dateline" },
           { key: "title", label: "Rubrik" },
-          { key: "text", label: "Brödtext", multiline: true },
+        ],
+      },
+      {
+        key: "intro",
+        label: "Inlämning",
+        fields: [
+          { key: "dateline", label: "Dateline" },
+          { key: "text1", label: "Brödtext stycke 1", multiline: true },
+          { key: "email_text", label: "E-posttext", multiline: true },
+          { key: "text2", label: "Brödtext stycke 2", multiline: true },
+          { key: "tip", label: "Tips", multiline: true },
         ],
       },
     ],
@@ -62,11 +135,59 @@ const PAGE_SCHEMA: Record<string, { label: string; sections: { key: string; labe
     label: "Miljö",
     sections: [
       {
-        key: "intro",
-        label: "Intro",
+        key: "header",
+        label: "Sidhuvud",
         fields: [
           { key: "dateline", label: "Dateline" },
           { key: "title", label: "Rubrik" },
+        ],
+      },
+      {
+        key: "policy",
+        label: "Vår policy",
+        fields: [
+          { key: "dateline", label: "Dateline" },
+          { key: "text1", label: "Brödtext stycke 1", multiline: true },
+          { key: "text2", label: "Brödtext stycke 2", multiline: true },
+        ],
+      },
+      {
+        key: "reuse",
+        label: "Återbruk",
+        fields: [
+          { key: "dateline", label: "Dateline" },
+          { key: "text1", label: "Brödtext stycke 1", multiline: true },
+          { key: "text2", label: "Brödtext stycke 2", multiline: true },
+        ],
+      },
+      {
+        key: "free_rolls",
+        label: "Gratisrullar",
+        fields: [
+          { key: "dateline", label: "Dateline" },
+          { key: "text", label: "Brödtext", multiline: true },
+        ],
+      },
+      {
+        key: "order",
+        label: "Beställ papper",
+        fields: [
+          { key: "dateline", label: "Dateline" },
+          { key: "text", label: "Brödtext", multiline: true },
+        ],
+      },
+      {
+        key: "business",
+        label: "Företag",
+        fields: [
+          { key: "text", label: "Brödtext", multiline: true },
+          { key: "phone", label: "Telefon" },
+        ],
+      },
+      {
+        key: "pickup",
+        label: "Avhämtning",
+        fields: [
           { key: "text", label: "Brödtext", multiline: true },
         ],
       },
@@ -76,11 +197,32 @@ const PAGE_SCHEMA: Record<string, { label: string; sections: { key: string; labe
     label: "Kontakt",
     sections: [
       {
-        key: "intro",
-        label: "Intro",
+        key: "header",
+        label: "Sidhuvud",
         fields: [
           { key: "dateline", label: "Dateline" },
           { key: "title", label: "Rubrik" },
+        ],
+      },
+      {
+        key: "address",
+        label: "Adress",
+        fields: [
+          { key: "visit_address", label: "Besöksadress" },
+          { key: "company_name", label: "Företagsnamn" },
+          { key: "postal_box", label: "Postbox" },
+          { key: "postal_city", label: "Postort" },
+          { key: "switchboard", label: "Växelnummer" },
+        ],
+      },
+      {
+        key: "bank",
+        label: "Bank & FO-nummer",
+        fields: [
+          { key: "iban", label: "IBAN" },
+          { key: "bic", label: "BIC" },
+          { key: "fo_number", label: "FO-nummer" },
+          { key: "vat", label: "VAT" },
         ],
       },
     ],
@@ -149,7 +291,6 @@ const SectionEditor = ({ pageSlug, sectionConfig }: {
 
   const sectionContent = content?.[sectionConfig.key] || {};
 
-  // Initialize local values from DB
   if (content && !initialized) {
     const vals: Record<string, string> = {};
     sectionConfig.fields.forEach((f) => {
@@ -218,7 +359,6 @@ const AdminSidebar = () => {
   const [open, setOpen] = useState(false);
   const [activePage, setActivePage] = useState("home");
 
-  // Don't render the trigger button if not admin
   if (!user && !open) {
     return (
       <button
@@ -233,7 +373,6 @@ const AdminSidebar = () => {
 
   return (
     <>
-      {/* Trigger button */}
       {!open && (
         <button
           onClick={() => setOpen(true)}
@@ -244,7 +383,6 @@ const AdminSidebar = () => {
         </button>
       )}
 
-      {/* Overlay */}
       {open && (
         <div
           className="fixed inset-0 bg-foreground/20 z-[70]"
@@ -252,14 +390,12 @@ const AdminSidebar = () => {
         />
       )}
 
-      {/* Sidebar panel */}
       <div
         className={`fixed top-0 right-0 h-full w-80 md:w-96 bg-card border-l border-foreground z-[80] transform transition-transform duration-300 ${
           open ? "translate-x-0" : "translate-x-full"
         } overflow-y-auto`}
       >
         <div className="p-6">
-          {/* Header */}
           <div className="flex items-center justify-between mb-6 pb-4 border-b-[3px] border-double border-foreground">
             <div>
               <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-muted-foreground block">Redaktör</span>
@@ -289,7 +425,6 @@ const AdminSidebar = () => {
             </div>
           ) : (
             <div>
-              {/* User info */}
               <div className="flex items-center justify-between mb-6">
                 <span className="font-body text-xs text-muted-foreground truncate">{user.email}</span>
                 <button
@@ -300,7 +435,6 @@ const AdminSidebar = () => {
                 </button>
               </div>
 
-              {/* Page selector */}
               <div className="mb-6">
                 <label className="font-mono text-[9px] tracking-[0.2em] uppercase text-muted-foreground block mb-2">Välj sida</label>
                 <div className="flex flex-wrap gap-2">
@@ -320,7 +454,6 @@ const AdminSidebar = () => {
                 </div>
               </div>
 
-              {/* Section editors */}
               <div className="rule-top pt-4">
                 {PAGE_SCHEMA[activePage]?.sections.map((section) => (
                   <SectionEditor
