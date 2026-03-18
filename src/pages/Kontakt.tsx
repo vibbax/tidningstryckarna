@@ -1,4 +1,5 @@
 import PageLayout from "@/components/PageLayout";
+import { useEditable } from "@/hooks/useEditable";
 
 const contacts = [
   {
@@ -39,21 +40,21 @@ const contacts = [
 ];
 
 const Kontakt = () => {
+  const t = useEditable("kontakt");
+
   return (
     <PageLayout>
-      {/* Page header */}
       <div className="container pt-8 md:pt-12">
         <div className="border-b-[3px] border-double border-foreground pb-6 mb-10">
-          <span className="dateline">Vi finns här</span>
+          <span className="dateline">{t("header", "dateline", "Vi finns här")}</span>
           <h1 className="font-display text-5xl md:text-7xl text-foreground leading-[0.95] tracking-tight mt-3">
-            Kontakta <span className="italic">oss</span>
+            {t("header", "title", "Kontakta oss")}
           </h1>
         </div>
       </div>
 
       <div className="container pb-16">
         <div className="grid md:grid-cols-12 gap-8 md:gap-0">
-          {/* Left — address + company info */}
           <div className="md:col-span-4 md:pr-8">
             <div className="rule-top mb-4">
               <span className="dateline">Adress</span>
@@ -62,18 +63,18 @@ const Kontakt = () => {
             <div className="space-y-4 mb-8">
               <div>
                 <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-muted-foreground block mb-1">Besöksadress</span>
-                <p className="font-body text-sm text-foreground">Vikingagränd 2A, Mariehamn</p>
+                <p className="font-body text-sm text-foreground">{t("address", "visit_address", "Vikingagränd 2A, Mariehamn")}</p>
               </div>
               <div>
                 <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-muted-foreground block mb-1">Postadress</span>
-                <p className="font-body text-sm text-foreground">TidningsTryckarna på Åland Ab</p>
-                <p className="font-body text-sm text-foreground">PB 50</p>
-                <p className="font-body text-sm text-foreground">AX-22101 Mariehamn, Åland</p>
+                <p className="font-body text-sm text-foreground">{t("address", "company_name", "TidningsTryckarna på Åland Ab")}</p>
+                <p className="font-body text-sm text-foreground">{t("address", "postal_box", "PB 50")}</p>
+                <p className="font-body text-sm text-foreground">{t("address", "postal_city", "AX-22101 Mariehamn, Åland")}</p>
               </div>
               <div>
                 <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-muted-foreground block mb-1">Växel</span>
-                <a href="tel:+35818260260" className="font-body text-sm text-foreground hover:text-red-ink transition-colors">
-                  +358 18 26026
+                <a href={`tel:${t("address", "switchboard", "+358 18 26026").replace(/\s/g, '')}`} className="font-body text-sm text-foreground hover:text-red-ink transition-colors">
+                  {t("address", "switchboard", "+358 18 26026")}
                 </a>
               </div>
             </div>
@@ -84,10 +85,10 @@ const Kontakt = () => {
               </div>
               <div className="space-y-3">
                 {[
-                  { label: "IBAN", value: "FI06 6601 0001 1033 24" },
-                  { label: "BIC", value: "AABAFI22" },
-                  { label: "FO-nummer", value: "0682615-3" },
-                  { label: "VAT", value: "FI06826153" },
+                  { label: "IBAN", value: t("bank", "iban", "FI06 6601 0001 1033 24") },
+                  { label: "BIC", value: t("bank", "bic", "AABAFI22") },
+                  { label: "FO-nummer", value: t("bank", "fo_number", "0682615-3") },
+                  { label: "VAT", value: t("bank", "vat", "FI06826153") },
                 ].map((item) => (
                   <div key={item.label} className="flex justify-between">
                     <span className="font-mono text-[9px] tracking-[0.15em] uppercase text-muted-foreground">{item.label}</span>
@@ -98,7 +99,6 @@ const Kontakt = () => {
             </div>
           </div>
 
-          {/* Right — contact persons */}
           <div className="md:col-span-8 col-divider md:pl-8">
             <div className="rule-top mb-6">
               <span className="dateline">Kontaktpersoner</span>
@@ -132,7 +132,6 @@ const Kontakt = () => {
               ))}
             </div>
 
-            {/* Map link */}
             <div className="mt-8">
               <a
                 href="https://goo.gl/maps/RZqWc1zXuBhg8gYg8"
