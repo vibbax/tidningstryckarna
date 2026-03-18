@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import heroBg from "@/assets/hero-printing.jpg";
 
 const HeroSection = () => {
@@ -20,13 +21,13 @@ const HeroSection = () => {
             Hög kapacitet och flexibilitet i tabloidformat — sex dagar i veckan, året runt. Vi trycker Ålands lokaltidningar och mycket mer.
           </p>
 
-          <a
-            href="#kontakt"
+          <Link
+            to="/kontakt"
             className="inline-flex items-center gap-3 bg-foreground text-background font-body text-xs font-semibold tracking-[0.15em] uppercase px-8 py-4 hover:bg-red-ink transition-colors"
           >
             Kontakta oss
             <span className="text-lg leading-none">→</span>
-          </a>
+          </Link>
         </div>
 
         {/* Image — 5 cols */}
