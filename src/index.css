@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Source+Sans+3:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,51 +6,50 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 215 30% 14%;
+    --background: 45 25% 97%;
+    --foreground: 220 20% 12%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 215 30% 14%;
+    --card: 45 20% 95%;
+    --card-foreground: 220 20% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 30% 14%;
+    --popover-foreground: 220 20% 12%;
 
-    --primary: 210 65% 22%;
-    --primary-foreground: 210 20% 98%;
+    --primary: 220 20% 12%;
+    --primary-foreground: 45 25% 97%;
 
-    --secondary: 42 50% 92%;
-    --secondary-foreground: 215 30% 14%;
+    --secondary: 45 15% 90%;
+    --secondary-foreground: 220 20% 12%;
 
-    --muted: 210 15% 93%;
-    --muted-foreground: 215 10% 46%;
+    --muted: 45 10% 88%;
+    --muted-foreground: 220 8% 48%;
 
-    --accent: 42 65% 55%;
-    --accent-foreground: 215 30% 14%;
+    --accent: 12 75% 52%;
+    --accent-foreground: 45 25% 97%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 210 18% 87%;
-    --input: 210 18% 87%;
-    --ring: 210 65% 22%;
+    --border: 220 12% 82%;
+    --input: 220 12% 82%;
+    --ring: 220 20% 12%;
 
-    --radius: 0.375rem;
+    --radius: 0.25rem;
 
-    --ink: 215 30% 14%;
-    --ink-light: 215 15% 35%;
-    --paper: 42 30% 96%;
-    --paper-dark: 42 20% 90%;
-    --navy: 210 65% 22%;
-    --navy-light: 210 50% 35%;
-    --amber: 42 65% 55%;
-    --amber-light: 42 55% 70%;
-    --forest: 155 35% 38%;
+    --ink: 220 20% 12%;
+    --ink-mid: 220 10% 32%;
+    --ink-light: 220 8% 48%;
+    --newsprint: 45 25% 97%;
+    --newsprint-warm: 40 30% 93%;
+    --red-ink: 12 75% 52%;
+    --red-ink-dark: 12 65% 42%;
 
-    --font-display: 'Playfair Display', Georgia, serif;
-    --font-body: 'Source Sans 3', system-ui, sans-serif;
+    --font-display: 'DM Serif Display', Georgia, serif;
+    --font-body: 'Space Grotesk', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
 
-    --shadow-card: 0 4px 24px -4px hsl(215 30% 14% / 0.08);
-    --shadow-elevated: 0 12px 40px -8px hsl(215 30% 14% / 0.12);
+    --shadow-subtle: 0 1px 3px hsl(220 20% 12% / 0.04);
+    --shadow-print: 2px 2px 0 hsl(220 20% 12% / 0.06);
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -76,6 +75,55 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
   }
+}
+
+/* Newspaper rule lines */
+.rule-top {
+  border-top: 2px solid hsl(var(--ink));
+  padding-top: 0.5rem;
+}
+
+.rule-double {
+  border-top: 3px double hsl(var(--ink));
+  padding-top: 0.75rem;
+}
+
+.rule-thin {
+  border-top: 1px solid hsl(var(--border));
+}
+
+/* Column divider */
+.col-divider {
+  position: relative;
+}
+.col-divider::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -1px;
+  width: 1px;
+  background: hsl(var(--border));
+}
+
+/* Dateline style */
+.dateline {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: hsl(var(--ink-light));
+}
+
+/* Drop cap */
+.drop-cap::first-letter {
+  font-family: var(--font-display);
+  float: left;
+  font-size: 3.5em;
+  line-height: 0.8;
+  margin-right: 0.1em;
+  margin-top: 0.05em;
+  color: hsl(var(--red-ink));
 }
 
 @layer utilities {

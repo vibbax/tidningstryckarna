@@ -2,33 +2,47 @@ import heroBg from "@/assets/hero-printing.jpg";
 
 const HeroSection = () => {
   return (
-    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
-      <img
-        src={heroBg}
-        alt="Tryckpress i drift"
-        className="absolute inset-0 w-full h-full object-cover"
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-navy/80 via-navy/60 to-navy/90" />
+    <section className="container py-8 md:py-12">
+      <div className="grid md:grid-cols-12 gap-6 md:gap-0">
+        {/* Main headline area — 7 cols */}
+        <div className="md:col-span-7 md:pr-8">
+          <div className="rule-double mb-6">
+            <span className="dateline">Modernt tryckeri · Åland, Finland</span>
+          </div>
 
-      <div className="relative z-10 container text-center px-4">
-        <p className="font-body text-sm md:text-base uppercase tracking-[0.3em] text-amber mb-4 animate-fade-in-up">
-          Tidningstryckarna på Åland AB
-        </p>
-        <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-primary-foreground leading-tight mb-6 animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
-          Modernt tabloidtryckeri<br className="hidden md:block" /> med tradition
-        </h1>
-        <p className="font-body text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto mb-10 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-          Hög kvalitet, nöjda kunder och miljömedveten produktion — sex dagar i veckan, året runt.
-        </p>
-        <div className="animate-fade-in-up" style={{ animationDelay: '0.45s' }}>
+          <h1 className="font-display text-5xl md:text-7xl lg:text-[5.5rem] text-foreground leading-[0.95] tracking-tight mb-6">
+            Tryckt ord,<br />
+            <span className="italic text-red-ink">levererat</span> med<br />
+            precision
+          </h1>
+
+          <p className="font-body text-base md:text-lg text-ink-mid leading-relaxed max-w-lg mb-8">
+            Hög kapacitet och flexibilitet i tabloidformat — sex dagar i veckan, året runt. Vi trycker Ålands lokaltidningar och mycket mer.
+          </p>
+
           <a
             href="#kontakt"
-            className="inline-block bg-amber hover:bg-amber-light text-accent-foreground font-body font-semibold px-8 py-3.5 rounded text-sm uppercase tracking-wider transition-colors"
+            className="inline-flex items-center gap-3 bg-foreground text-background font-body text-xs font-semibold tracking-[0.15em] uppercase px-8 py-4 hover:bg-red-ink transition-colors"
           >
             Kontakta oss
+            <span className="text-lg leading-none">→</span>
           </a>
         </div>
+
+        {/* Image — 5 cols */}
+        <div className="md:col-span-5 col-divider md:pl-8">
+          <img
+            src={heroBg}
+            alt="Tryckpress i full drift"
+            className="w-full aspect-[3/4] object-cover grayscale hover:grayscale-0 transition-all duration-700"
+          />
+          <p className="font-mono text-[9px] tracking-wider uppercase text-muted-foreground mt-2">
+            Foto: Tidningstryckarnas tryckpress i drift
+          </p>
+        </div>
       </div>
+
+      <div className="h-[2px] bg-foreground mt-8 md:mt-12" />
     </section>
   );
 };

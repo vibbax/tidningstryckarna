@@ -1,13 +1,18 @@
 const Footer = () => {
   return (
-    <footer className="bg-ink py-8">
-      <div className="container px-4 text-center">
-        <p className="font-display text-lg font-bold tracking-wide text-primary-foreground/90 mb-2">
-          TIDNINGS<span className="text-amber">TRYCKARNA</span>
-        </p>
-        <p className="font-body text-xs text-primary-foreground/50">
-          © {new Date().getFullYear()} Tidningstryckarna på Åland AB. Alla rättigheter förbehållna.
-        </p>
+    <footer className="bg-foreground text-primary-foreground">
+      <div className="container py-8">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <span className="font-display text-2xl tracking-tight">TidningsTryckarna</span>
+            <p className="font-mono text-[9px] tracking-[0.15em] uppercase text-primary-foreground/40 mt-1">
+              Tidningstryckarna på Åland AB
+            </p>
+          </div>
+          <p className="font-mono text-[9px] tracking-[0.15em] text-primary-foreground/30">
+            © {new Date().getFullYear()} Alla rättigheter förbehållna.
+          </p>
+        </div>
       </div>
     </footer>
   );
