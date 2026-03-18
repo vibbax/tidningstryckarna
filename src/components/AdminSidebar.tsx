@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { usePageContent, useUpdatePageContent } from "@/hooks/usePageContent";
 import { supabase } from "@/integrations/supabase/client";
@@ -287,9 +287,9 @@ const MediaLibrary = ({ onSelect, onClose }: { onSelect: (url: string) => void; 
     setLoading(false);
   }, []);
 
-  useState(() => {
+  useEffect(() => {
     loadFiles();
-  });
+  }, [loadFiles]);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
