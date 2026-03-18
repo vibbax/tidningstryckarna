@@ -376,7 +376,14 @@ const MediaLibrary = ({ onSelect, onClose }: { onSelect: (url: string) => void; 
                       onClose();
                     }}
                   />
-                  <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/30 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                  <div
+                    className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/30 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 cursor-pointer"
+                    onClick={() => {
+                      onSelect(f.url);
+                      onClose();
+                    }}
+                    title="Välj bild"
+                  >
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
