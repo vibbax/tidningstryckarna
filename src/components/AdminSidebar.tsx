@@ -287,8 +287,10 @@ const MediaLibrary = ({ onSelect, onClose }: { onSelect: (url: string) => void; 
     setLoading(false);
   }, []);
 
-  useState(() => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const [initialized] = useState(() => {
     loadFiles();
+    return true;
   });
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
