@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import heroBg from "@/assets/hero-printing.jpg";
 
 const HeroSection = () => {
