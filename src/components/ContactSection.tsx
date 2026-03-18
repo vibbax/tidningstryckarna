@@ -6,6 +6,7 @@ const ContactSection = () => {
   const email = t("contact", "email", "tidningstryckarna@tryckarna.com");
   const phone = t("contact", "phone", "+358 18 26669");
   const address = t("contact", "address", "Vikingagränd 2A, Mariehamn");
+  const mapLink = t("contact", "map_link", "https://goo.gl/maps/RZqWc1zXuBhg8gYg8");
 
   return (
     <section id="kontakt" className="container py-12 md:py-20">
@@ -42,7 +43,7 @@ const ContactSection = () => {
             <div className="py-6">
               <span className="font-mono text-[9px] tracking-[0.2em] uppercase text-muted-foreground block mb-1">Besöksadress</span>
               <a
-                href="https://goo.gl/maps/RZqWc1zXuBhg8gYg8"
+                href={mapLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-display text-xl md:text-2xl text-foreground hover:text-red-ink transition-colors"

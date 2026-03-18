@@ -4,12 +4,14 @@ import { useEditable } from "@/hooks/useEditable";
 const EnvironmentSection = () => {
   const t = useEditable("home");
 
+  const imageUrl = t("environment", "image", "") || envImg;
+
   return (
     <section id="miljo" className="container py-12 md:py-20">
       <div className="grid md:grid-cols-12 gap-6 md:gap-0">
         <div className="md:col-span-7 md:pr-8">
           <img
-            src={envImg}
+            src={imageUrl}
             alt="Miljömedveten produktion"
             className="w-full aspect-[16/10] object-cover"
           />

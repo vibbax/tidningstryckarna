@@ -5,6 +5,8 @@ import { useEditable } from "@/hooks/useEditable";
 const Miljo = () => {
   const t = useEditable("miljo");
 
+  const policyImage = t("policy", "image", "") || envImg;
+
   return (
     <PageLayout>
       <div className="container pt-8 md:pt-12">
@@ -30,7 +32,7 @@ const Miljo = () => {
             </p>
 
             <img
-              src={envImg}
+              src={policyImage}
               alt="Miljömedveten produktion"
               className="w-full aspect-[16/9] object-cover mt-6"
             />

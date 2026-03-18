@@ -4,6 +4,8 @@ import { useEditable } from "@/hooks/useEditable";
 const AboutSection = () => {
   const t = useEditable("home");
 
+  const imageUrl = t("about", "image", "") || newspapersImg;
+
   return (
     <section id="om-oss" className="container py-10 md:py-16">
       <div className="grid md:grid-cols-12 gap-6 md:gap-0">
@@ -37,7 +39,7 @@ const AboutSection = () => {
 
         <div className="md:col-span-4 col-divider md:pl-8">
           <img
-            src={newspapersImg}
+            src={imageUrl}
             alt="Tryckta tidningar"
             className="w-full aspect-[4/5] object-cover"
           />

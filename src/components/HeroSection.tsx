@@ -5,6 +5,9 @@ import { useEditable } from "@/hooks/useEditable";
 const HeroSection = () => {
   const t = useEditable("home");
 
+  const imageUrl = t("hero", "image", "") || heroBg;
+  const ctaLink = t("hero", "cta_link", "/kontakt");
+
   return (
     <section className="container py-8 md:py-12">
       <div className="grid md:grid-cols-12 gap-6 md:gap-0">
@@ -22,18 +25,30 @@ const HeroSection = () => {
             {t("hero", "subtitle", "Hög kapacitet och flexibilitet i tabloidformat — sex dagar i veckan, året runt. Vi trycker Ålands lokaltidningar och mycket mer.")}
           </p>
 
-          <Link
-            to="/kontakt"
-            className="inline-flex items-center gap-3 bg-foreground text-background font-body text-xs font-semibold tracking-[0.15em] uppercase px-8 py-4 hover:bg-red-ink transition-colors"
-          >
-            {t("hero", "cta", "Kontakta oss")}
-            <span className="text-lg leading-none">→</span>
-          </Link>
+          {ctaLink.startsWith("http") ? (
+            <a
+              href={ctaLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 bg-foreground text-background font-body text-xs font-semibold tracking-[0.15em] uppercase px-8 py-4 hover:bg-red-ink transition-colors"
+            >
+              {t("hero", "cta", "Kontakta oss")}
+              <span className="text-lg leading-none">→</span>
+            </a>
+          ) : (
+            <Link
+              to={ctaLink}
+              className="inline-flex items-center gap-3 bg-foreground text-background font-body text-xs font-semibold tracking-[0.15em] uppercase px-8 py-4 hover:bg-red-ink transition-colors"
+            >
+              {t("hero", "cta", "Kontakta oss")}
+              <span className="text-lg leading-none">→</span>
+            </Link>
+          )}
         </div>
 
         <div className="md:col-span-5 col-divider md:pl-8">
           <img
-            src={heroBg}
+            src={imageUrl}
             alt="Tryckpress i full drift"
             className="w-full aspect-[3/4] object-cover grayscale hover:grayscale-0 transition-all duration-700"
           />
