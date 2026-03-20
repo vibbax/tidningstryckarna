@@ -38,6 +38,33 @@ export type Database = {
         }
         Relationships: []
       }
+      pages: {
+        Row: {
+          created_at: string
+          id: string
+          menu_order: number
+          slug: string
+          title: string
+          visible: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          menu_order?: number
+          slug: string
+          title: string
+          visible?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          menu_order?: number
+          slug?: string
+          title?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
