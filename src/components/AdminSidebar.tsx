@@ -285,6 +285,16 @@ const BlockContentEditor = ({ pageSlug, block, onRemove, onMoveUp, onMoveDown, i
                       value={localValues[field.key] || ""} onChange={(e) => updateField(field.key, e.target.value)}
                       className="w-full bg-background border border-border px-3 py-2 font-body text-sm text-foreground focus:outline-none focus:border-red-ink" />
                   </div>
+                ) : fieldType === "select" && field.options ? (
+                  <select
+                    value={localValues[field.key] || field.options[0]?.value || ""}
+                    onChange={(e) => updateField(field.key, e.target.value)}
+                    className="w-full bg-background border border-border px-3 py-2 font-body text-sm text-foreground focus:outline-none focus:border-red-ink"
+                  >
+                    {field.options.map((opt) => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
                 ) : fieldType === "multiline" ? (
                   <textarea value={localValues[field.key] || ""} onChange={(e) => updateField(field.key, e.target.value)} rows={3}
                     className="w-full bg-background border border-border px-3 py-2 font-body text-sm text-foreground focus:outline-none focus:border-red-ink resize-y" />
