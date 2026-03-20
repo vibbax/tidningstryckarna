@@ -494,13 +494,8 @@ const AdminSidebar = () => {
     });
   };
 
-  if (!user && !open) {
-    return (
-      <button onClick={() => setOpen(true)}
-        className="fixed bottom-4 right-4 z-[60] bg-foreground text-background p-3 shadow-lg hover:bg-red-ink transition-colors" aria-label="Admin">
-        <Settings size={18} />
-      </button>
-    );
+  if (!user) {
+    return null;
   }
 
   return (
