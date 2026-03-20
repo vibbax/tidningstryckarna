@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { usePages } from "@/hooks/usePages";
 
-const navItems = [
+const FALLBACK_NAV = [
   { label: "Hem", href: "/" },
   { label: "Om oss", href: "/om-oss" },
   { label: "Prepress", href: "/prepress" },
@@ -12,6 +13,16 @@ const navItems = [
 
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { data: pages } = usePages();
+
+  const navItems = pages
+    ? pages
+        .filter((p) => p.visible)
+        .map((p) => ({
+          label: p.title,
+          href: p.slug === "home" ? "/" : `/${p.slug}`,
+        }))
+    : FALLBACK_NAV;
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
