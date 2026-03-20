@@ -416,19 +416,83 @@ const BlockLayoutManager = ({ pageSlug }: { pageSlug: string }) => {
 
 // ─── Admin Sidebar ───────────────────────────────────────────────
 
+// ─── Create Page Form ────────────────────────────────────────────
+
+const CreatePageForm = ({ onCreated }: { onCreated: (slug: string) => void }) => {
+  const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
+  const createPage = useCreatePage();
+  const { data: pages } = usePages();
+
+  const autoSlug = (t: string) =>
+    t.toLowerCase().replace(/[åä]/g, "a").replace(/ö/g, "o").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+  const handleTitleChange = (v: string) => {
+    setTitle(v);
+    setSlug(autoSlug(v));
+  };
+
+  const handleCreate = () => {
+    if (!slug || !title) return;
+    const order = (pages?.length || 0);
+    createPage.mutate(
+      { slug, title, menu_order: order },
+      {
+        onSuccess: () => {
+          toast.success(`Sidan "${title}" skapad`);
+          onCreated(slug);
+          setTitle("");
+          setSlug("");
+        },
+        onError: (err) => toast.error("Kunde inte skapa sida: " + err.message),
+      }
+    );
+  };
+
+  return (
+    <div className="space-y-2">
+      <div>
+        <label className="font-mono text-[9px] tracking-[0.2em] uppercase text-muted-foreground block mb-1">Sidtitel</label>
+        <input type="text" value={title} onChange={(e) => handleTitleChange(e.target.value)} placeholder="Ny sida"
+          className="w-full bg-background border border-border px-3 py-2 font-body text-sm text-foreground focus:outline-none focus:border-red-ink" />
+      </div>
+      <div>
+        <label className="font-mono text-[9px] tracking-[0.2em] uppercase text-muted-foreground block mb-1">URL-slug</label>
+        <input type="text" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="ny-sida"
+          className="w-full bg-background border border-border px-3 py-2 font-body text-sm text-foreground focus:outline-none focus:border-red-ink" />
+      </div>
+      <button onClick={handleCreate} disabled={!slug || !title || createPage.isPending}
+        className="flex items-center gap-2 bg-foreground text-background font-body text-[10px] font-semibold tracking-[0.15em] uppercase px-4 py-2 hover:bg-red-ink transition-colors disabled:opacity-50">
+        <FilePlus size={12} />
+        {createPage.isPending ? "Skapar..." : "Skapa sida"}
+      </button>
+    </div>
+  );
+};
+
+// ─── Admin Sidebar ───────────────────────────────────────────────
+
 const AdminSidebar = () => {
   const { user, isAdmin, signOut } = useAuth();
   const [open, setOpen] = useState(false);
   const [activePage, setActivePage] = useState("home");
   const [showMediaLibrary, setShowMediaLibrary] = useState(false);
+  const [showCreatePage, setShowCreatePage] = useState(false);
+  const { data: pages } = usePages();
+  const deletePage = useDeletePage();
 
-  const pages = [
-    { slug: "home", label: "Startsida" },
-    { slug: "om-oss", label: "Om oss" },
-    { slug: "prepress", label: "Prepress" },
-    { slug: "miljo", label: "Miljö" },
-    { slug: "kontakt", label: "Kontakt" },
-  ];
+  const pageList = pages || [];
+
+  const handleDeletePage = (slug: string, title: string) => {
+    if (!confirm(`Vill du verkligen ta bort sidan "${title}"? Allt innehåll på sidan försvinner.`)) return;
+    deletePage.mutate(slug, {
+      onSuccess: () => {
+        toast.success(`Sidan "${title}" borttagen`);
+        if (activePage === slug) setActivePage("home");
+      },
+      onError: (err) => toast.error("Kunde inte ta bort: " + err.message),
+    });
+  };
 
   if (!user && !open) {
     return (
@@ -490,17 +554,42 @@ const AdminSidebar = () => {
 
               {/* Page selector */}
               <div className="mb-6">
-                <label className="font-mono text-[9px] tracking-[0.2em] uppercase text-muted-foreground block mb-2">Välj sida</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="font-mono text-[9px] tracking-[0.2em] uppercase text-muted-foreground">Välj sida</label>
+                  <button onClick={() => setShowCreatePage(!showCreatePage)}
+                    className="flex items-center gap-1 font-body text-[10px] text-muted-foreground hover:text-foreground transition-colors">
+                    <Plus size={12} /> Ny sida
+                  </button>
+                </div>
+
+                {showCreatePage && (
+                  <div className="mb-4 p-3 border border-border bg-background">
+                    <CreatePageForm onCreated={(slug) => { setActivePage(slug); setShowCreatePage(false); }} />
+                  </div>
+                )}
+
                 <div className="flex flex-wrap gap-2">
-                  {pages.map(({ slug, label }) => (
-                    <button key={slug} onClick={() => setActivePage(slug)}
-                      className={`font-body text-[10px] font-semibold tracking-[0.1em] uppercase px-3 py-1.5 border transition-colors ${
-                        activePage === slug
-                          ? "bg-foreground text-background border-foreground"
-                          : "bg-transparent text-foreground border-border hover:border-foreground"
-                      }`}>
-                      {label}
-                    </button>
+                  {pageList.map(({ slug, title }) => (
+                    <div key={slug} className="flex items-center gap-0">
+                      <button onClick={() => setActivePage(slug)}
+                        className={`font-body text-[10px] font-semibold tracking-[0.1em] uppercase px-3 py-1.5 border-y border-l transition-colors ${
+                          activePage === slug
+                            ? "bg-foreground text-background border-foreground"
+                            : "bg-transparent text-foreground border-border hover:border-foreground"
+                        }`}>
+                        {title}
+                      </button>
+                      {slug !== "home" && (
+                        <button onClick={() => handleDeletePage(slug, title)}
+                          className={`px-1.5 py-1.5 border-y border-r transition-colors ${
+                            activePage === slug
+                              ? "bg-foreground text-background border-foreground hover:bg-red-ink"
+                              : "border-border text-muted-foreground hover:text-red-ink hover:border-red-ink"
+                          }`} title="Ta bort sida">
+                          <FileX size={10} />
+                        </button>
+                      )}
+                    </div>
                   ))}
                 </div>
               </div>
