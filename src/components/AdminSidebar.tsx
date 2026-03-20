@@ -2,10 +2,11 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { usePageContent, useUpdatePageContent } from "@/hooks/usePageContent";
 import { usePageLayout, useUpdatePageLayout } from "@/hooks/usePageLayout";
+import { usePages, useCreatePage, useDeletePage } from "@/hooks/usePages";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Settings, X, LogOut, Save, ChevronDown, ChevronRight, Upload, Image,
-  Trash2, Copy, FolderOpen, Plus, ArrowUp, ArrowDown, GripVertical,
+  Trash2, Copy, FolderOpen, Plus, ArrowUp, ArrowDown, GripVertical, FilePlus, FileX,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
