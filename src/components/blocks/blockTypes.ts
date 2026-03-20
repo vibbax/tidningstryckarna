@@ -45,7 +45,7 @@ export const BLOCK_TYPE_META: Record<BlockType, BlockTypeMeta> = {
       { key: "text2", label: "Brödtext stycke 2", type: "multiline" },
       { key: "image", label: "Bild", type: "image" },
       { key: "image_caption", label: "Bildtext" },
-      { key: "image_position", label: "Bildposition (left/right)" },
+      { key: "image_position", label: "Bildposition", type: "select", options: [{ value: "left", label: "Vänster" }, { value: "right", label: "Höger" }] },
       { key: "stat1_number", label: "Statistik 1 siffra" },
       { key: "stat1_label", label: "Statistik 1 etikett" },
       { key: "stat2_number", label: "Statistik 2 siffra" },
