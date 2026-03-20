@@ -221,7 +221,10 @@ const BlockContentEditor = ({ pageSlug, block, onRemove, onMoveUp, onMoveDown, i
   const handleSave = () => {
     mutation.mutate(
       { page_slug: pageSlug, section_key: block.section_key, content: localValues },
-      { onSuccess: () => toast.success(`"${meta.label}" sparad`) }
+      {
+        onSuccess: () => toast.success(`"${meta.label}" sparad`),
+        onError: (err) => toast.error(`Kunde inte spara: ${err.message}`),
+      }
     );
   };
 
