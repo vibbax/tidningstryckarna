@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Settings, X, LogOut, Save, ChevronDown, ChevronRight, Upload, Image,
   Trash2, Copy, FolderOpen, Plus, ArrowUp, ArrowDown, GripVertical, FilePlus, FileX,
+  Link as LinkIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -190,6 +191,64 @@ const AdminLoginForm = () => {
   );
 };
 
+// ─── Multiline Field with Link button ────────────────────────────
+
+const MultilineField = ({ value, onChange }: { value: string; onChange: (v: string) => void }) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleInsertLink = () => {
+    const ta = textareaRef.current;
+    if (!ta) return;
+
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const selectedText = value.slice(start, end);
+
+    if (!selectedText) {
+      toast.error("Markera text först");
+      return;
+    }
+
+    const url = prompt("Ange URL:", "https://");
+    if (!url) return;
+
+    const before = value.slice(0, start);
+    const after = value.slice(end);
+    const newValue = `${before}[${selectedText}](${url})${after}`;
+    onChange(newValue);
+
+    // Restore focus after state update
+    requestAnimationFrame(() => {
+      const newCursorPos = before.length + `[${selectedText}](${url})`.length;
+      ta.focus();
+      ta.setSelectionRange(newCursorPos, newCursorPos);
+    });
+  };
+
+  return (
+    <div>
+      <div className="flex justify-end mb-1">
+        <button
+          type="button"
+          onClick={handleInsertLink}
+          className="flex items-center gap-1 text-muted-foreground hover:text-red-ink transition-colors font-mono text-[9px] tracking-[0.1em] uppercase px-2 py-1 border border-border hover:border-red-ink rounded-sm"
+          title="Markera text och klicka för att lägga till länk"
+        >
+          <LinkIcon size={10} />
+          Länka
+        </button>
+      </div>
+      <textarea
+        ref={textareaRef}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        rows={3}
+        className="w-full bg-background border border-border px-3 py-2 font-body text-sm text-foreground focus:outline-none focus:border-red-ink resize-y"
+      />
+    </div>
+  );
+};
+
 // ─── Block Content Editor ────────────────────────────────────────
 
 const BlockContentEditor = ({ pageSlug, block, onRemove, onMoveUp, onMoveDown, isFirst, isLast }: {
@@ -296,8 +355,7 @@ const BlockContentEditor = ({ pageSlug, block, onRemove, onMoveUp, onMoveDown, i
                     ))}
                   </select>
                 ) : fieldType === "multiline" ? (
-                  <textarea value={localValues[field.key] || ""} onChange={(e) => updateField(field.key, e.target.value)} rows={3}
-                    className="w-full bg-background border border-border px-3 py-2 font-body text-sm text-foreground focus:outline-none focus:border-red-ink resize-y" />
+                  <MultilineField value={localValues[field.key] || ""} onChange={(v) => updateField(field.key, v)} />
                 ) : (
                   <input type="text" value={localValues[field.key] || ""} onChange={(e) => updateField(field.key, e.target.value)}
                     className="w-full bg-background border border-border px-3 py-2 font-body text-sm text-foreground focus:outline-none focus:border-red-ink" />
