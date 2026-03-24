@@ -153,7 +153,7 @@ const TextWithImageBlock = ({
               key={i}
               className={`${i === 0 && dropCap ? "drop-cap " : ""}font-body text-sm ${i === 0 ? "text-foreground" : "text-ink-mid"} leading-[1.8] ${i > 0 ? "mt-4" : ""}`}
             >
-              {text}
+              {renderRichText(text)}
             </p>
           ))}
         </div>
