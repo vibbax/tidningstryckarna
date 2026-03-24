@@ -5,6 +5,7 @@ import HeroBlock from "@/components/sections/HeroBlock";
 import TextWithImageBlock from "@/components/sections/TextWithImageBlock";
 import NumberedListBlock from "@/components/sections/NumberedListBlock";
 import ContactBlock from "@/components/sections/ContactBlock";
+import GalleryBlock from "@/components/sections/GalleryBlock";
 
 const HeroRenderer = ({ pageSlug, sectionKey }: { pageSlug: string; sectionKey: string }) => {
   const t = useEditable(pageSlug);

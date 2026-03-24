@@ -84,6 +84,28 @@ export const BLOCK_TYPE_META: Record<BlockType, BlockTypeMeta> = {
       { key: "map_link", label: "Kartlänk", type: "link" },
     ],
   },
+  gallery: {
+    label: "Bildgalleri",
+    icon: "🖼️",
+    fields: [
+      { key: "dateline", label: "Dateline" },
+      { key: "title", label: "Rubrik" },
+      { key: "intro", label: "Intro", type: "multiline" },
+      { key: "columns", label: "Kolumner", type: "select", options: [{ value: "2", label: "2" }, { value: "3", label: "3" }, { value: "4", label: "4" }] },
+      { key: "image1", label: "Bild 1", type: "image" },
+      { key: "image1_caption", label: "Bildtext 1" },
+      { key: "image2", label: "Bild 2", type: "image" },
+      { key: "image2_caption", label: "Bildtext 2" },
+      { key: "image3", label: "Bild 3", type: "image" },
+      { key: "image3_caption", label: "Bildtext 3" },
+      { key: "image4", label: "Bild 4", type: "image" },
+      { key: "image4_caption", label: "Bildtext 4" },
+      { key: "image5", label: "Bild 5", type: "image" },
+      { key: "image5_caption", label: "Bildtext 5" },
+      { key: "image6", label: "Bild 6", type: "image" },
+      { key: "image6_caption", label: "Bildtext 6" },
+    ],
+  },
 };
 
 export const DEFAULT_LAYOUTS: Record<string, BlockDef[]> = {
