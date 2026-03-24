@@ -222,7 +222,9 @@ const MultilineField = ({ value, onChange }: { value: string; onChange: (v: stri
   const toHtml = (text: string): string => {
     return text
       .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a class="admin-link" data-url="$2" title="$2">$1</a>')
+      .replace(/\[([^\]]+)\]\(((?:[^()]*|\([^()]*\))*)\)/g, (_, text, url) =>
+        `<a class="admin-link" data-url="${url.replace(/"/g, '&quot;')}" title="${url.replace(/"/g, '&quot;')}">${text}</a>`
+      )
       .replace(/\n/g, "<br>");
   };
 
