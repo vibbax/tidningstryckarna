@@ -297,8 +297,7 @@ const BlockContentEditor = ({ pageSlug, block, onRemove, onMoveUp, onMoveDown, i
                     ))}
                   </select>
                 ) : fieldType === "multiline" ? (
-                  <textarea value={localValues[field.key] || ""} onChange={(e) => updateField(field.key, e.target.value)} rows={3}
-                    className="w-full bg-background border border-border px-3 py-2 font-body text-sm text-foreground focus:outline-none focus:border-red-ink resize-y" />
+                  <MultilineField value={localValues[field.key] || ""} onChange={(v) => updateField(field.key, v)} />
                 ) : (
                   <input type="text" value={localValues[field.key] || ""} onChange={(e) => updateField(field.key, e.target.value)}
                     className="w-full bg-background border border-border px-3 py-2 font-body text-sm text-foreground focus:outline-none focus:border-red-ink" />
