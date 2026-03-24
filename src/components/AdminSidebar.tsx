@@ -196,7 +196,7 @@ const AdminLoginForm = () => {
 /** Parse markdown text into segments of plain text and links */
 const parseSegments = (text: string): { type: "text" | "link"; value: string; url?: string; raw: string }[] => {
   const segments: { type: "text" | "link"; value: string; url?: string; raw: string }[] = [];
-  const regex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  const regex = /\[([^\]]+)\]\(((?:[^()]*|\([^()]*\))*)\)/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
   while ((match = regex.exec(text)) !== null) {
