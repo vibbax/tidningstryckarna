@@ -152,6 +152,97 @@ const ImageField = ({ value, onChange }: { value: string; onChange: (v: string) 
   );
 };
 
+// ─── Images (multi) Field ────────────────────────────────────────
+
+interface GalleryImage {
+  url: string;
+  caption: string;
+}
+
+const ImagesField = ({ value, onChange }: { value: string; onChange: (v: string) => void }) => {
+  const [showLibrary, setShowLibrary] = useState(false);
+  const [addingIndex, setAddingIndex] = useState<number | null>(null);
+
+  const images: GalleryImage[] = (() => {
+    try { return JSON.parse(value) || []; } catch { return []; }
+  })();
+
+  const update = (newImages: GalleryImage[]) => onChange(JSON.stringify(newImages));
+
+  const handleAdd = () => {
+    setAddingIndex(images.length);
+    setShowLibrary(true);
+  };
+
+  const handleReplace = (index: number) => {
+    setAddingIndex(index);
+    setShowLibrary(true);
+  };
+
+  const handleSelect = (url: string) => {
+    const updated = [...images];
+    if (addingIndex !== null && addingIndex >= images.length) {
+      updated.push({ url, caption: "" });
+    } else if (addingIndex !== null) {
+      updated[addingIndex] = { ...updated[addingIndex], url };
+    }
+    update(updated);
+    setAddingIndex(null);
+  };
+
+  const handleRemove = (index: number) => {
+    update(images.filter((_, i) => i !== index));
+  };
+
+  const handleCaptionChange = (index: number, caption: string) => {
+    const updated = [...images];
+    updated[index] = { ...updated[index], caption };
+    update(updated);
+  };
+
+  const handleMove = (index: number, dir: -1 | 1) => {
+    const target = index + dir;
+    if (target < 0 || target >= images.length) return;
+    const updated = [...images];
+    [updated[index], updated[target]] = [updated[target], updated[index]];
+    update(updated);
+  };
+
+  return (
+    <div className="space-y-2">
+      {images.map((img, i) => (
+        <div key={i} className="border border-border p-2 bg-card">
+          <div className="flex gap-2 items-start">
+            <img src={img.url} alt={img.caption || `Bild ${i + 1}`} className="w-16 h-16 object-cover flex-shrink-0 cursor-pointer" onClick={() => handleReplace(i)} />
+            <div className="flex-1 min-w-0">
+              <input
+                type="text"
+                placeholder="Bildtext..."
+                value={img.caption}
+                onChange={(e) => handleCaptionChange(i, e.target.value)}
+                className="w-full bg-background border border-border px-2 py-1 font-body text-xs text-foreground focus:outline-none focus:border-red-ink"
+              />
+              <div className="flex gap-1 mt-1">
+                <button onClick={() => handleMove(i, -1)} disabled={i === 0}
+                  className="p-0.5 text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"><ArrowUp size={10} /></button>
+                <button onClick={() => handleMove(i, 1)} disabled={i === images.length - 1}
+                  className="p-0.5 text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"><ArrowDown size={10} /></button>
+                <button onClick={() => handleRemove(i)}
+                  className="p-0.5 text-muted-foreground hover:text-red-ink transition-colors"><Trash2 size={10} /></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+      <button type="button" onClick={handleAdd}
+        className="w-full flex items-center justify-center gap-1.5 py-2 border border-dashed border-border font-body text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground hover:border-foreground hover:text-foreground transition-colors">
+        <Plus size={11} />
+        Lägg till bild
+      </button>
+      {showLibrary && <MediaLibrary onSelect={handleSelect} onClose={() => { setShowLibrary(false); setAddingIndex(null); }} />}
+    </div>
+  );
+
 // ─── Login Form ──────────────────────────────────────────────────
 
 const AdminLoginForm = () => {
