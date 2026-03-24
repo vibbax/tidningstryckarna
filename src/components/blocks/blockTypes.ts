@@ -4,7 +4,7 @@ export interface BlockDef {
   section_key: string;
 }
 
-export type BlockType = "hero" | "text_with_image" | "numbered_list" | "contact";
+export type BlockType = "hero" | "text_with_image" | "numbered_list" | "contact" | "gallery";
 
 export interface BlockFieldDef {
   key: string;
