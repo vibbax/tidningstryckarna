@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ReactNode } from "react";
+import { renderRichText } from "@/lib/renderRichText";
 
 interface HeroBlockProps {
   dateline?: string;
