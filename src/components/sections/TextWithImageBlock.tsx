@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { renderRichText } from "@/lib/renderRichText";
 
 interface StatItem {
   value: string;
@@ -68,7 +69,7 @@ const TextWithImageBlock = ({
           <div className="md:col-span-5 md:pr-8">
             {texts[0] && (
               <p className={`${dropCap ? "drop-cap " : ""}font-body text-sm text-foreground leading-[1.8]`}>
-                {texts[0]}
+                {renderRichText(texts[0])}
               </p>
             )}
           </div>
@@ -76,7 +77,7 @@ const TextWithImageBlock = ({
             <div className="md:col-span-5 col-divider md:pl-8">
               {texts.slice(1).map((text, i) => (
                 <p key={i} className="font-body text-sm text-ink-mid leading-[1.8] mt-0 first:mt-0">
-                  {text}
+                  {renderRichText(text)}
                 </p>
               ))}
             </div>
@@ -138,7 +139,7 @@ const TextWithImageBlock = ({
             key={i}
             className={`font-body text-sm ${i === 0 ? "text-foreground" : "text-ink-mid"} leading-[1.8] ${i > 0 ? "mt-4" : "mb-4"}`}
           >
-            {text}
+            {renderRichText(text)}
           </p>
         ))}
 
@@ -152,7 +153,7 @@ const TextWithImageBlock = ({
               key={i}
               className={`${i === 0 && dropCap ? "drop-cap " : ""}font-body text-sm ${i === 0 ? "text-foreground" : "text-ink-mid"} leading-[1.8] ${i > 0 ? "mt-4" : ""}`}
             >
-              {text}
+              {renderRichText(text)}
             </p>
           ))}
         </div>

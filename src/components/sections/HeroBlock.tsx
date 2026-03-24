@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ReactNode } from "react";
+import { renderRichText } from "@/lib/renderRichText";
 
 interface HeroBlockProps {
   dateline?: string;
@@ -65,16 +66,16 @@ const HeroBlock = ({
             {titleLine1}
             {titleLine2 && (
               <>
-                <br />
-                <span className="italic text-red-ink">{titleLine2}</span>{" "}
-                {titleLine3}
+                {" "}
+                <span className="italic text-red-ink">{titleLine2}</span>
               </>
             )}
+            {titleLine3 && <> {titleLine3}</>}
           </h1>
 
           {subtitle && (
             <p className="font-body text-base md:text-lg text-ink-mid leading-relaxed max-w-lg mb-8">
-              {subtitle}
+              {renderRichText(subtitle)}
             </p>
           )}
 
