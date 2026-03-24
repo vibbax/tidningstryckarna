@@ -529,7 +529,9 @@ const BlockContentEditor = ({ pageSlug, block, onRemove, onMoveUp, onMoveDown, i
                 <label className="font-mono text-[9px] tracking-[0.2em] uppercase text-muted-foreground block mb-1">
                   {field.label}
                 </label>
-                {fieldType === "image" ? (
+                {fieldType === "images" ? (
+                  <ImagesField value={localValues[field.key] || "[]"} onChange={(v) => updateField(field.key, v)} />
+                ) : fieldType === "image" ? (
                   <ImageField value={localValues[field.key] || ""} onChange={(v) => updateField(field.key, v)} />
                 ) : fieldType === "link" ? (
                   <div className="flex items-center gap-1">
