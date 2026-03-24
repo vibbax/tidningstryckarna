@@ -193,58 +193,121 @@ const AdminLoginForm = () => {
 
 // ─── Multiline Field with Link button ────────────────────────────
 
+/** Parse markdown text into segments of plain text and links */
+const parseSegments = (text: string): { type: "text" | "link"; value: string; url?: string; raw: string }[] => {
+  const segments: { type: "text" | "link"; value: string; url?: string; raw: string }[] = [];
+  const regex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      const plain = text.slice(lastIndex, match.index);
+      segments.push({ type: "text", value: plain, raw: plain });
+    }
+    segments.push({ type: "link", value: match[1], url: match[2], raw: match[0] });
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) {
+    const plain = text.slice(lastIndex);
+    segments.push({ type: "text", value: plain, raw: plain });
+  }
+  return segments;
+};
+
 const MultilineField = ({ value, onChange }: { value: string; onChange: (v: string) => void }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [editMode, setEditMode] = useState(false);
 
   const handleInsertLink = () => {
     const ta = textareaRef.current;
     if (!ta) return;
-
     const start = ta.selectionStart;
     const end = ta.selectionEnd;
     const selectedText = value.slice(start, end);
-
-    if (!selectedText) {
-      toast.error("Markera text först");
-      return;
-    }
-
+    if (!selectedText) { toast.error("Markera text först"); return; }
     const url = prompt("Ange URL:", "https://");
     if (!url) return;
-
     const before = value.slice(0, start);
     const after = value.slice(end);
-    const newValue = `${before}[${selectedText}](${url})${after}`;
-    onChange(newValue);
-
-    // Restore focus after state update
-    requestAnimationFrame(() => {
-      const newCursorPos = before.length + `[${selectedText}](${url})`.length;
-      ta.focus();
-      ta.setSelectionRange(newCursorPos, newCursorPos);
-    });
+    onChange(`${before}[${selectedText}](${url})${after}`);
+    setEditMode(false);
   };
+
+  const handleEditLink = (oldRaw: string, linkText: string, oldUrl: string) => {
+    const newUrl = prompt("Ändra URL:", oldUrl);
+    if (newUrl === null) return;
+    if (newUrl === "") {
+      // Remove link, keep text
+      onChange(value.replace(oldRaw, linkText));
+    } else {
+      onChange(value.replace(oldRaw, `[${linkText}](${newUrl})`));
+    }
+  };
+
+  const handleRemoveLink = (oldRaw: string, linkText: string) => {
+    onChange(value.replace(oldRaw, linkText));
+  };
+
+  // Render the styled preview with clickable links
+  const renderPreview = () => {
+    const lines = value.split("\n");
+    return lines.map((line, li) => (
+      <span key={li}>
+        {li > 0 && <br />}
+        {parseSegments(line).map((seg, si) =>
+          seg.type === "link" ? (
+            <span key={si} className="relative group/link inline">
+              <span
+                className="underline text-red-ink cursor-pointer hover:text-foreground transition-colors"
+                onClick={() => handleEditLink(seg.raw, seg.value, seg.url!)}
+                title={seg.url}
+              >
+                {seg.value}
+              </span>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); handleRemoveLink(seg.raw, seg.value); }}
+                className="hidden group-hover/link:inline-flex ml-0.5 text-muted-foreground hover:text-red-ink align-middle"
+                title="Ta bort länk"
+              >
+                <X size={10} />
+              </button>
+            </span>
+          ) : (
+            <span key={si}>{seg.value}</span>
+          )
+        )}
+      </span>
+    ));
+  };
+
+  if (editMode) {
+    return (
+      <div>
+        <div className="flex justify-end gap-1 mb-1">
+          <button type="button" onClick={handleInsertLink}
+            className="flex items-center gap-1 text-muted-foreground hover:text-red-ink transition-colors font-mono text-[9px] tracking-[0.1em] uppercase px-2 py-1 border border-border hover:border-red-ink rounded-sm">
+            <LinkIcon size={10} /> Länka
+          </button>
+          <button type="button" onClick={() => setEditMode(false)}
+            className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors font-mono text-[9px] tracking-[0.1em] uppercase px-2 py-1 border border-border rounded-sm">
+            Klar
+          </button>
+        </div>
+        <textarea ref={textareaRef} value={value} onChange={(e) => onChange(e.target.value)} rows={4} autoFocus
+          className="w-full bg-background border border-border px-3 py-2 font-body text-sm text-foreground focus:outline-none focus:border-red-ink resize-y" />
+      </div>
+    );
+  }
 
   return (
     <div>
-      <div className="flex justify-end mb-1">
-        <button
-          type="button"
-          onClick={handleInsertLink}
-          className="flex items-center gap-1 text-muted-foreground hover:text-red-ink transition-colors font-mono text-[9px] tracking-[0.1em] uppercase px-2 py-1 border border-border hover:border-red-ink rounded-sm"
-          title="Markera text och klicka för att lägga till länk"
-        >
-          <LinkIcon size={10} />
-          Länka
-        </button>
+      <div
+        onClick={() => setEditMode(true)}
+        className="w-full min-h-[60px] bg-background border border-border px-3 py-2 font-body text-sm text-foreground cursor-text hover:border-foreground/50 transition-colors whitespace-pre-wrap"
+      >
+        {value ? renderPreview() : <span className="text-muted-foreground">Klicka för att redigera...</span>}
       </div>
-      <textarea
-        ref={textareaRef}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        rows={3}
-        className="w-full bg-background border border-border px-3 py-2 font-body text-sm text-foreground focus:outline-none focus:border-red-ink resize-y"
-      />
     </div>
   );
 };
