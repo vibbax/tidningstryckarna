@@ -65,11 +65,11 @@ const HeroBlock = ({
             {titleLine1}
             {titleLine2 && (
               <>
-                <br />
-                <span className="italic text-red-ink">{titleLine2}</span>{" "}
-                {titleLine3}
+                {" "}
+                <span className="italic text-red-ink">{titleLine2}</span>
               </>
             )}
+            {titleLine3 && <> {titleLine3}</>}
           </h1>
 
           {subtitle && (
