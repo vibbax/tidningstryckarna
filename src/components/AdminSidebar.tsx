@@ -395,6 +395,39 @@ const MultilineField = ({ value, onChange }: { value: string; onChange: (v: stri
     handleInput();
   };
 
+  const fileUploadRef = useRef<HTMLInputElement>(null);
+
+  const handleDocumentUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const ext = file.name.split(".").pop() || "pdf";
+    const path = `documents/${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
+    const { error } = await supabase.storage.from("media").upload(path, file);
+    if (error) { toast.error("Uppladdning misslyckades"); return; }
+    const url = getPublicUrl(path);
+    const linkText = file.name.replace(/\.[^.]+$/, "");
+
+    if (editableRef.current) {
+      const link = document.createElement("a");
+      link.className = "admin-link";
+      link.setAttribute("data-url", url);
+      link.title = url;
+      link.textContent = linkText;
+
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount > 0 && editableRef.current.contains(sel.getRangeAt(0).commonAncestorContainer)) {
+        const range = sel.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(link);
+      } else {
+        editableRef.current.appendChild(link);
+      }
+      handleInput();
+    }
+    toast.success("Dokument uppladdad");
+    if (fileUploadRef.current) fileUploadRef.current.value = "";
+  };
+
   const handleLinkClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
     if (target.classList.contains("admin-link") || target.closest(".admin-link")) {
@@ -422,10 +455,17 @@ const MultilineField = ({ value, onChange }: { value: string; onChange: (v: stri
         <div className="flex justify-end gap-1 mb-1">
           <button type="button" onClick={handleInsertLink}
             className="flex items-center gap-1 text-muted-foreground hover:text-red-ink transition-colors font-mono text-[9px] tracking-[0.1em] uppercase px-2 py-1 border border-border hover:border-red-ink rounded-sm"
-            onMouseDown={(e) => e.preventDefault()} /* prevent blur */
+            onMouseDown={(e) => e.preventDefault()}
           >
             <LinkIcon size={10} /> Länka
           </button>
+          <button type="button" onClick={() => fileUploadRef.current?.click()}
+            className="flex items-center gap-1 text-muted-foreground hover:text-red-ink transition-colors font-mono text-[9px] tracking-[0.1em] uppercase px-2 py-1 border border-border hover:border-red-ink rounded-sm"
+            onMouseDown={(e) => e.preventDefault()}
+          >
+            <Upload size={10} /> Dokument
+          </button>
+          <input ref={fileUploadRef} type="file" className="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip" onChange={handleDocumentUpload} />
         </div>
       )}
       <div
