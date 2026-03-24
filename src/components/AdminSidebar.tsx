@@ -401,13 +401,26 @@ const MultilineField = ({ value, onChange }: { value: string; onChange: (v: stri
     const file = e.target.files?.[0];
     if (!file) return;
     const ext = file.name.split(".").pop() || "pdf";
-    const path = `documents/${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
-    const { error } = await supabase.storage.from("media").upload(path, file);
-    if (error) { toast.error("Uppladdning misslyckades"); return; }
+    const safeName = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
+    const path = `documents/${safeName}`;
+    
+    toast.info("Laddar upp dokument...");
+    const { error } = await supabase.storage.from("media").upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+    if (error) {
+      console.error("Document upload error:", error);
+      toast.error(`Uppladdning misslyckades: ${error.message}`);
+      return;
+    }
     const url = getPublicUrl(path);
     const linkText = file.name.replace(/\.[^.]+$/, "");
 
     if (editableRef.current) {
+      // Re-focus the editable so we can insert
+      editableRef.current.focus();
+      
       const link = document.createElement("a");
       link.className = "admin-link";
       link.setAttribute("data-url", url);
