@@ -491,7 +491,6 @@ const MultilineField = ({ value, onChange }: { value: string; onChange: (v: stri
         onBlur={handleBlur}
         onClick={handleLinkClick}
         className="w-full min-h-[60px] bg-background border border-border px-3 py-2 font-body text-sm text-foreground focus:outline-none focus:border-red-ink whitespace-pre-wrap [&_.admin-link]:underline [&_.admin-link]:text-red-ink [&_.admin-link]:cursor-pointer hover:[&_.admin-link]:opacity-80"
-        dangerouslySetInnerHTML={{ __html: toHtml(value) }}
       />
     </div>
   );
