@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Settings, X, LogOut, Save, ChevronDown, ChevronRight, Upload, Image,
   Trash2, Copy, FolderOpen, Plus, ArrowUp, ArrowDown, GripVertical, FilePlus, FileX,
+  Link as LinkIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
