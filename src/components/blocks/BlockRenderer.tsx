@@ -114,13 +114,9 @@ const GalleryRenderer = ({ pageSlug, sectionKey }: { pageSlug: string; sectionKe
   const t = useEditable(pageSlug);
   const s = (field: string, fallback: string) => t(sectionKey, field, fallback);
 
-  const images = [];
-  for (let i = 1; i <= 6; i++) {
-    const url = s(`image${i}`, "");
-    if (url) {
-      images.push({ url, caption: s(`image${i}_caption`, "") });
-    }
-  }
+  const imagesRaw = s("images", "[]");
+  let images: { url: string; caption?: string }[] = [];
+  try { images = JSON.parse(imagesRaw) || []; } catch { images = []; }
 
   const columns = (parseInt(s("columns", "3")) || 3) as 2 | 3 | 4;
 
