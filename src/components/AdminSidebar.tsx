@@ -355,8 +355,9 @@ const MultilineField = ({ value, onChange }: { value: string; onChange: (v: stri
   };
 
   // Sync value → contentEditable only when not editing (to avoid cursor jumps)
+  // Also handles initial render
   useEffect(() => {
-    if (!isEditing && editableRef.current) {
+    if (editableRef.current && !isEditing) {
       const html = toHtml(value);
       if (editableRef.current.innerHTML !== html) {
         editableRef.current.innerHTML = html;
