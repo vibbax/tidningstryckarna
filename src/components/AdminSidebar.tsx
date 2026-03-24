@@ -401,13 +401,26 @@ const MultilineField = ({ value, onChange }: { value: string; onChange: (v: stri
     const file = e.target.files?.[0];
     if (!file) return;
     const ext = file.name.split(".").pop() || "pdf";
-    const path = `documents/${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
-    const { error } = await supabase.storage.from("media").upload(path, file);
-    if (error) { toast.error("Uppladdning misslyckades"); return; }
+    const safeName = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
+    const path = `documents/${safeName}`;
+    
+    toast.info("Laddar upp dokument...");
+    const { error } = await supabase.storage.from("media").upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+    if (error) {
+      console.error("Document upload error:", error);
+      toast.error(`Uppladdning misslyckades: ${error.message}`);
+      return;
+    }
     const url = getPublicUrl(path);
     const linkText = file.name.replace(/\.[^.]+$/, "");
 
     if (editableRef.current) {
+      // Re-focus the editable so we can insert
+      editableRef.current.focus();
+      
       const link = document.createElement("a");
       link.className = "admin-link";
       link.setAttribute("data-url", url);
@@ -459,13 +472,13 @@ const MultilineField = ({ value, onChange }: { value: string; onChange: (v: stri
           >
             <LinkIcon size={10} /> Länka
           </button>
-          <button type="button" onClick={() => fileUploadRef.current?.click()}
+          <button type="button" onClick={() => { setTimeout(() => fileUploadRef.current?.click(), 0); }}
             className="flex items-center gap-1 text-muted-foreground hover:text-red-ink transition-colors font-mono text-[9px] tracking-[0.1em] uppercase px-2 py-1 border border-border hover:border-red-ink rounded-sm"
             onMouseDown={(e) => e.preventDefault()}
           >
             <Upload size={10} /> Dokument
           </button>
-          <input ref={fileUploadRef} type="file" className="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip" onChange={handleDocumentUpload} />
+          <input ref={fileUploadRef} type="file" className="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.csv" onChange={handleDocumentUpload} />
         </div>
       )}
       <div
