@@ -15,7 +15,7 @@ import {
 } from "@/components/blocks/blockTypes";
 
 // ─── Field types ─────────────────────────────────────────────────
-type FieldType = "text" | "multiline" | "image" | "link";
+type FieldType = "text" | "multiline" | "image" | "link" | "images";
 
 interface FieldDef {
   key: string;
