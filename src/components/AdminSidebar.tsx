@@ -242,6 +242,7 @@ const ImagesField = ({ value, onChange }: { value: string; onChange: (v: string)
       {showLibrary && <MediaLibrary onSelect={handleSelect} onClose={() => { setShowLibrary(false); setAddingIndex(null); }} />}
     </div>
   );
+};
 
 // ─── Login Form ──────────────────────────────────────────────────
 
