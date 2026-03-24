@@ -371,27 +371,34 @@ const MultilineField = ({ value, onChange }: { value: string; onChange: (v: stri
       toast.error("Markera text först");
       return;
     }
+
     const range = sel.getRangeAt(0);
-    // Make sure selection is within our editable
     if (!editableRef.current?.contains(range.commonAncestorContainer)) {
       toast.error("Markera text i fältet först");
       return;
     }
+
     const selectedText = sel.toString();
-    if (!selectedText.trim()) { toast.error("Markera text först"); return; }
+    if (!selectedText.trim()) {
+      toast.error("Markera text först");
+      return;
+    }
 
     const url = prompt("Ange URL:", "https://");
     if (!url) return;
 
+    const fragment = range.extractContents();
     const link = document.createElement("a");
     link.className = "admin-link";
     link.setAttribute("data-url", url);
     link.title = url;
-    link.textContent = selectedText;
+    link.appendChild(fragment);
 
-    range.deleteContents();
     range.insertNode(link);
+    range.setStartAfter(link);
+    range.collapse(true);
     sel.removeAllRanges();
+    sel.addRange(range);
 
     handleInput();
   };
