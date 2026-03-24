@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Settings, X, LogOut, Save, ChevronDown, ChevronRight, Upload, Image,
   Trash2, Copy, FolderOpen, Plus, ArrowUp, ArrowDown, GripVertical, FilePlus, FileX,
+  Link as LinkIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -14,7 +15,7 @@ import {
 } from "@/components/blocks/blockTypes";
 
 // ─── Field types ─────────────────────────────────────────────────
-type FieldType = "text" | "multiline" | "image" | "link";
+type FieldType = "text" | "multiline" | "image" | "link" | "images";
 
 interface FieldDef {
   key: string;
@@ -151,6 +152,98 @@ const ImageField = ({ value, onChange }: { value: string; onChange: (v: string) 
   );
 };
 
+// ─── Images (multi) Field ────────────────────────────────────────
+
+interface GalleryImage {
+  url: string;
+  caption: string;
+}
+
+const ImagesField = ({ value, onChange }: { value: string; onChange: (v: string) => void }) => {
+  const [showLibrary, setShowLibrary] = useState(false);
+  const [addingIndex, setAddingIndex] = useState<number | null>(null);
+
+  const images: GalleryImage[] = (() => {
+    try { return JSON.parse(value) || []; } catch { return []; }
+  })();
+
+  const update = (newImages: GalleryImage[]) => onChange(JSON.stringify(newImages));
+
+  const handleAdd = () => {
+    setAddingIndex(images.length);
+    setShowLibrary(true);
+  };
+
+  const handleReplace = (index: number) => {
+    setAddingIndex(index);
+    setShowLibrary(true);
+  };
+
+  const handleSelect = (url: string) => {
+    const updated = [...images];
+    if (addingIndex !== null && addingIndex >= images.length) {
+      updated.push({ url, caption: "" });
+    } else if (addingIndex !== null) {
+      updated[addingIndex] = { ...updated[addingIndex], url };
+    }
+    update(updated);
+    setAddingIndex(null);
+  };
+
+  const handleRemove = (index: number) => {
+    update(images.filter((_, i) => i !== index));
+  };
+
+  const handleCaptionChange = (index: number, caption: string) => {
+    const updated = [...images];
+    updated[index] = { ...updated[index], caption };
+    update(updated);
+  };
+
+  const handleMove = (index: number, dir: -1 | 1) => {
+    const target = index + dir;
+    if (target < 0 || target >= images.length) return;
+    const updated = [...images];
+    [updated[index], updated[target]] = [updated[target], updated[index]];
+    update(updated);
+  };
+
+  return (
+    <div className="space-y-2">
+      {images.map((img, i) => (
+        <div key={i} className="border border-border p-2 bg-card">
+          <div className="flex gap-2 items-start">
+            <img src={img.url} alt={img.caption || `Bild ${i + 1}`} className="w-16 h-16 object-cover flex-shrink-0 cursor-pointer" onClick={() => handleReplace(i)} />
+            <div className="flex-1 min-w-0">
+              <input
+                type="text"
+                placeholder="Bildtext..."
+                value={img.caption}
+                onChange={(e) => handleCaptionChange(i, e.target.value)}
+                className="w-full bg-background border border-border px-2 py-1 font-body text-xs text-foreground focus:outline-none focus:border-red-ink"
+              />
+              <div className="flex gap-1 mt-1">
+                <button onClick={() => handleMove(i, -1)} disabled={i === 0}
+                  className="p-0.5 text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"><ArrowUp size={10} /></button>
+                <button onClick={() => handleMove(i, 1)} disabled={i === images.length - 1}
+                  className="p-0.5 text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"><ArrowDown size={10} /></button>
+                <button onClick={() => handleRemove(i)}
+                  className="p-0.5 text-muted-foreground hover:text-red-ink transition-colors"><Trash2 size={10} /></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+      <button type="button" onClick={handleAdd}
+        className="w-full flex items-center justify-center gap-1.5 py-2 border border-dashed border-border font-body text-[10px] font-semibold tracking-[0.1em] uppercase text-muted-foreground hover:border-foreground hover:text-foreground transition-colors">
+        <Plus size={11} />
+        Lägg till bild
+      </button>
+      {showLibrary && <MediaLibrary onSelect={handleSelect} onClose={() => { setShowLibrary(false); setAddingIndex(null); }} />}
+    </div>
+  );
+};
+
 // ─── Login Form ──────────────────────────────────────────────────
 
 const AdminLoginForm = () => {
@@ -187,6 +280,227 @@ const AdminLoginForm = () => {
         {loading ? "Loggar in..." : "Logga in"}
       </button>
     </form>
+  );
+};
+
+// ─── Multiline Field with Link button ────────────────────────────
+
+/** Parse markdown text into segments of plain text and links */
+const parseSegments = (text: string): { type: "text" | "link"; value: string; url?: string; raw: string }[] => {
+  const segments: { type: "text" | "link"; value: string; url?: string; raw: string }[] = [];
+  const regex = /\[([^\]]+)\]\(((?:[^()]*|\([^()]*\))*)\)/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      const plain = text.slice(lastIndex, match.index);
+      segments.push({ type: "text", value: plain, raw: plain });
+    }
+    segments.push({ type: "link", value: match[1], url: match[2], raw: match[0] });
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) {
+    const plain = text.slice(lastIndex);
+    segments.push({ type: "text", value: plain, raw: plain });
+  }
+  return segments;
+};
+
+const MultilineField = ({ value, onChange }: { value: string; onChange: (v: string) => void }) => {
+  const editableRef = useRef<HTMLDivElement>(null);
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Convert markdown value → HTML for contentEditable
+  const toHtml = (text: string): string => {
+    return text
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/\[([^\]]+)\]\(((?:[^()]*|\([^()]*\))*)\)/g, (_, text, url) =>
+        `<a class="admin-link" data-url="${url.replace(/"/g, '&quot;')}" title="${url.replace(/"/g, '&quot;')}">${text}</a>`
+      )
+      .replace(/\n/g, "<br>");
+  };
+
+  // Convert HTML back → markdown
+  const toMarkdown = (el: HTMLDivElement): string => {
+    let md = "";
+    const walk = (node: Node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        md += node.textContent || "";
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const tag = (node as HTMLElement).tagName.toLowerCase();
+        if (tag === "br") {
+          md += "\n";
+        } else if (tag === "a") {
+          const url = (node as HTMLElement).getAttribute("data-url") || (node as HTMLAnchorElement).href || "";
+          md += `[${node.textContent || ""}](${url})`;
+        } else {
+          node.childNodes.forEach(walk);
+        }
+      }
+    };
+    el.childNodes.forEach(walk);
+    return md;
+  };
+
+  const handleInput = () => {
+    if (!editableRef.current) return;
+    const md = toMarkdown(editableRef.current);
+    onChange(md);
+  };
+
+  const handleFocus = () => setIsEditing(true);
+  const handleBlur = () => {
+    handleInput();
+    setIsEditing(false);
+  };
+
+  // Sync value → contentEditable only when not editing (to avoid cursor jumps)
+  // Also handles initial render
+  useEffect(() => {
+    if (editableRef.current && !isEditing) {
+      const html = toHtml(value);
+      if (editableRef.current.innerHTML !== html) {
+        editableRef.current.innerHTML = html;
+      }
+    }
+  }, [value, isEditing]);
+
+  const handleInsertLink = () => {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
+      toast.error("Markera text först");
+      return;
+    }
+
+    const range = sel.getRangeAt(0);
+    if (!editableRef.current?.contains(range.commonAncestorContainer)) {
+      toast.error("Markera text i fältet först");
+      return;
+    }
+
+    const selectedText = sel.toString();
+    if (!selectedText.trim()) {
+      toast.error("Markera text först");
+      return;
+    }
+
+    const url = prompt("Ange URL:", "https://");
+    if (!url) return;
+
+    const fragment = range.extractContents();
+    const link = document.createElement("a");
+    link.className = "admin-link";
+    link.setAttribute("data-url", url);
+    link.title = url;
+    link.appendChild(fragment);
+
+    range.insertNode(link);
+    range.setStartAfter(link);
+    range.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(range);
+
+    handleInput();
+  };
+
+  const fileUploadRef = useRef<HTMLInputElement>(null);
+
+  const handleDocumentUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const ext = file.name.split(".").pop() || "pdf";
+    const safeName = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
+    const path = `documents/${safeName}`;
+    
+    toast.info("Laddar upp dokument...");
+    const { error } = await supabase.storage.from("media").upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+    if (error) {
+      console.error("Document upload error:", error);
+      toast.error(`Uppladdning misslyckades: ${error.message}`);
+      return;
+    }
+    const url = getPublicUrl(path);
+    const linkText = file.name.replace(/\.[^.]+$/, "");
+
+    if (editableRef.current) {
+      // Re-focus the editable so we can insert
+      editableRef.current.focus();
+      
+      const link = document.createElement("a");
+      link.className = "admin-link";
+      link.setAttribute("data-url", url);
+      link.title = url;
+      link.textContent = linkText;
+
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount > 0 && editableRef.current.contains(sel.getRangeAt(0).commonAncestorContainer)) {
+        const range = sel.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(link);
+      } else {
+        editableRef.current.appendChild(link);
+      }
+      handleInput();
+    }
+    toast.success("Dokument uppladdad");
+    if (fileUploadRef.current) fileUploadRef.current.value = "";
+  };
+
+  const handleLinkClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.classList.contains("admin-link") || target.closest(".admin-link")) {
+      e.preventDefault();
+      e.stopPropagation();
+      const linkEl = target.classList.contains("admin-link") ? target : target.closest(".admin-link") as HTMLElement;
+      const oldUrl = linkEl.getAttribute("data-url") || "";
+      const newUrl = prompt("Ändra URL (töm för att ta bort länk):", oldUrl);
+      if (newUrl === null) return;
+      if (newUrl === "") {
+        // Unwrap link, keep text
+        const text = document.createTextNode(linkEl.textContent || "");
+        linkEl.parentNode?.replaceChild(text, linkEl);
+      } else {
+        linkEl.setAttribute("data-url", newUrl);
+        linkEl.title = newUrl;
+      }
+      handleInput();
+    }
+  };
+
+  return (
+    <div>
+      {/* File input must live outside isEditing guard so it stays in DOM when blur fires */}
+      <input ref={fileUploadRef} type="file" className="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.csv" onChange={handleDocumentUpload} />
+      {isEditing && (
+        <div className="flex justify-end gap-1 mb-1">
+          <button type="button" onClick={handleInsertLink}
+            className="flex items-center gap-1 text-muted-foreground hover:text-red-ink transition-colors font-mono text-[9px] tracking-[0.1em] uppercase px-2 py-1 border border-border hover:border-red-ink rounded-sm"
+            onMouseDown={(e) => e.preventDefault()}
+          >
+            <LinkIcon size={10} /> Länka
+          </button>
+          <button type="button" onClick={() => fileUploadRef.current?.click()}
+            className="flex items-center gap-1 text-muted-foreground hover:text-red-ink transition-colors font-mono text-[9px] tracking-[0.1em] uppercase px-2 py-1 border border-border hover:border-red-ink rounded-sm"
+            onMouseDown={(e) => e.preventDefault()}
+          >
+            <Upload size={10} /> Dokument
+          </button>
+        </div>
+      )}
+      <div
+        ref={editableRef}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={handleInput}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        onClick={handleLinkClick}
+        className="w-full min-h-[60px] bg-background border border-border px-3 py-2 font-body text-sm text-foreground focus:outline-none focus:border-red-ink whitespace-pre-wrap [&_.admin-link]:underline [&_.admin-link]:text-red-ink [&_.admin-link]:cursor-pointer hover:[&_.admin-link]:opacity-80"
+      />
+    </div>
   );
 };
 
@@ -276,7 +590,9 @@ const BlockContentEditor = ({ pageSlug, block, onRemove, onMoveUp, onMoveDown, i
                 <label className="font-mono text-[9px] tracking-[0.2em] uppercase text-muted-foreground block mb-1">
                   {field.label}
                 </label>
-                {fieldType === "image" ? (
+                {fieldType === "images" ? (
+                  <ImagesField value={localValues[field.key] || "[]"} onChange={(v) => updateField(field.key, v)} />
+                ) : fieldType === "image" ? (
                   <ImageField value={localValues[field.key] || ""} onChange={(v) => updateField(field.key, v)} />
                 ) : fieldType === "link" ? (
                   <div className="flex items-center gap-1">
@@ -296,8 +612,7 @@ const BlockContentEditor = ({ pageSlug, block, onRemove, onMoveUp, onMoveDown, i
                     ))}
                   </select>
                 ) : fieldType === "multiline" ? (
-                  <textarea value={localValues[field.key] || ""} onChange={(e) => updateField(field.key, e.target.value)} rows={3}
-                    className="w-full bg-background border border-border px-3 py-2 font-body text-sm text-foreground focus:outline-none focus:border-red-ink resize-y" />
+                  <MultilineField value={localValues[field.key] || ""} onChange={(v) => updateField(field.key, v)} />
                 ) : (
                   <input type="text" value={localValues[field.key] || ""} onChange={(e) => updateField(field.key, e.target.value)}
                     className="w-full bg-background border border-border px-3 py-2 font-body text-sm text-foreground focus:outline-none focus:border-red-ink" />

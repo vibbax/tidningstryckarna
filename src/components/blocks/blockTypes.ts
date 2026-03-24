@@ -4,12 +4,12 @@ export interface BlockDef {
   section_key: string;
 }
 
-export type BlockType = "hero" | "text_with_image" | "numbered_list" | "contact";
+export type BlockType = "hero" | "text_with_image" | "numbered_list" | "contact" | "gallery";
 
 export interface BlockFieldDef {
   key: string;
   label: string;
-  type?: "text" | "multiline" | "image" | "link" | "select";
+  type?: "text" | "multiline" | "image" | "link" | "select" | "images";
   options?: { value: string; label: string }[];
 }
 
@@ -82,6 +82,17 @@ export const BLOCK_TYPE_META: Record<BlockType, BlockTypeMeta> = {
       { key: "phone_note", label: "Telefon-anteckning" },
       { key: "address", label: "Besöksadress" },
       { key: "map_link", label: "Kartlänk", type: "link" },
+    ],
+  },
+  gallery: {
+    label: "Bildgalleri",
+    icon: "🖼️",
+    fields: [
+      { key: "dateline", label: "Dateline" },
+      { key: "title", label: "Rubrik" },
+      { key: "intro", label: "Intro", type: "multiline" },
+      { key: "columns", label: "Kolumner", type: "select", options: [{ value: "2", label: "2" }, { value: "3", label: "3" }, { value: "4", label: "4" }] },
+      { key: "images", label: "Bilder", type: "images" },
     ],
   },
 };
