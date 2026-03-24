@@ -1,17 +1,19 @@
 import React from "react";
 
+// Regex that handles URLs with parentheses: matches balanced parens inside the URL
+const LINK_REGEX = /\[([^\]]+)\]\(((?:[^()]*|\([^()]*\))*)\)/g;
+
 /**
  * Renders plain text with:
  * - Newlines preserved as <br />
- * - Markdown-style links: [text](url)
+ * - Markdown-style links: [text](url) — supports parens in URLs
  */
 export const renderRichText = (text: string): React.ReactNode[] => {
   const lines = text.split("\n");
 
   return lines.flatMap((line, lineIndex) => {
     const parts: React.ReactNode[] = [];
-    // Match [link text](url)
-    const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+    const linkRegex = new RegExp(LINK_REGEX.source, "g");
     let lastIndex = 0;
     let match: RegExpExecArray | null;
 
@@ -37,7 +39,6 @@ export const renderRichText = (text: string): React.ReactNode[] => {
       parts.push(line.slice(lastIndex));
     }
 
-    // Add <br /> between lines (not after last)
     if (lineIndex < lines.length - 1) {
       parts.push(<br key={`br-${lineIndex}`} />);
     }
@@ -45,3 +46,5 @@ export const renderRichText = (text: string): React.ReactNode[] => {
     return parts;
   });
 };
+
+export { LINK_REGEX };
