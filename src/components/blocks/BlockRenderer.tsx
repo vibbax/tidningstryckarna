@@ -110,11 +110,37 @@ const ContactRenderer = ({ pageSlug, sectionKey }: { pageSlug: string; sectionKe
   );
 };
 
+const GalleryRenderer = ({ pageSlug, sectionKey }: { pageSlug: string; sectionKey: string }) => {
+  const t = useEditable(pageSlug);
+  const s = (field: string, fallback: string) => t(sectionKey, field, fallback);
+
+  const images = [];
+  for (let i = 1; i <= 6; i++) {
+    const url = s(`image${i}`, "");
+    if (url) {
+      images.push({ url, caption: s(`image${i}_caption`, "") });
+    }
+  }
+
+  const columns = (parseInt(s("columns", "3")) || 3) as 2 | 3 | 4;
+
+  return (
+    <GalleryBlock
+      dateline={s("dateline", "")}
+      title={s("title", "Galleri")}
+      intro={s("intro", "")}
+      images={images.length > 0 ? images : [{ url: "/placeholder.svg", caption: "Exempelbild" }]}
+      columns={columns}
+    />
+  );
+};
+
 const RENDERERS: Record<string, React.FC<{ pageSlug: string; sectionKey: string }>> = {
   hero: HeroRenderer,
   text_with_image: TextWithImageRenderer,
   numbered_list: NumberedListRenderer,
   contact: ContactRenderer,
+  gallery: GalleryRenderer,
 };
 
 interface BlockRendererProps {
