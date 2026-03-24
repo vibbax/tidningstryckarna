@@ -77,7 +77,7 @@ const TextWithImageBlock = ({
             <div className="md:col-span-5 col-divider md:pl-8">
               {texts.slice(1).map((text, i) => (
                 <p key={i} className="font-body text-sm text-ink-mid leading-[1.8] mt-0 first:mt-0">
-                  {text}
+                  {renderRichText(text)}
                 </p>
               ))}
             </div>
