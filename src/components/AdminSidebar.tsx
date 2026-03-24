@@ -464,6 +464,8 @@ const MultilineField = ({ value, onChange }: { value: string; onChange: (v: stri
 
   return (
     <div>
+      {/* File input must live outside isEditing guard so it stays in DOM when blur fires */}
+      <input ref={fileUploadRef} type="file" className="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.csv" onChange={handleDocumentUpload} />
       {isEditing && (
         <div className="flex justify-end gap-1 mb-1">
           <button type="button" onClick={handleInsertLink}
@@ -472,13 +474,12 @@ const MultilineField = ({ value, onChange }: { value: string; onChange: (v: stri
           >
             <LinkIcon size={10} /> Länka
           </button>
-          <button type="button" onClick={() => { setTimeout(() => fileUploadRef.current?.click(), 0); }}
+          <button type="button" onClick={() => fileUploadRef.current?.click()}
             className="flex items-center gap-1 text-muted-foreground hover:text-red-ink transition-colors font-mono text-[9px] tracking-[0.1em] uppercase px-2 py-1 border border-border hover:border-red-ink rounded-sm"
             onMouseDown={(e) => e.preventDefault()}
           >
             <Upload size={10} /> Dokument
           </button>
-          <input ref={fileUploadRef} type="file" className="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.csv" onChange={handleDocumentUpload} />
         </div>
       )}
       <div
