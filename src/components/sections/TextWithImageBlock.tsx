@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { renderRichText } from "@/lib/renderRichText";
 
 interface StatItem {
   value: string;

@@ -75,7 +75,7 @@ const HeroBlock = ({
 
           {subtitle && (
             <p className="font-body text-base md:text-lg text-ink-mid leading-relaxed max-w-lg mb-8">
-              {subtitle}
+              {renderRichText(subtitle)}
             </p>
           )}
 
