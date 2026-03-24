@@ -69,7 +69,7 @@ const TextWithImageBlock = ({
           <div className="md:col-span-5 md:pr-8">
             {texts[0] && (
               <p className={`${dropCap ? "drop-cap " : ""}font-body text-sm text-foreground leading-[1.8]`}>
-                {texts[0]}
+                {renderRichText(texts[0])}
               </p>
             )}
           </div>
