@@ -9,7 +9,7 @@ export type BlockType = "hero" | "text_with_image" | "numbered_list" | "contact"
 export interface BlockFieldDef {
   key: string;
   label: string;
-  type?: "text" | "multiline" | "image" | "link" | "select";
+  type?: "text" | "multiline" | "image" | "link" | "select" | "images";
   options?: { value: string; label: string }[];
 }
 
