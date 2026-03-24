@@ -1,4 +1,7 @@
 import React from "react";
+import { FileDown } from "lucide-react";
+
+const DOC_EXTENSIONS = /\.(pdf|docx?|xlsx?|pptx?|csv|zip|rar|txt)(\?|$)/i;
 
 // Regex that handles URLs with parentheses: matches balanced parens inside the URL
 const LINK_REGEX = /\[([^\]]+)\]\(((?:[^()]*|\([^()]*\))*)\)/g;
