@@ -215,99 +215,136 @@ const parseSegments = (text: string): { type: "text" | "link"; value: string; ur
 };
 
 const MultilineField = ({ value, onChange }: { value: string; onChange: (v: string) => void }) => {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [editMode, setEditMode] = useState(false);
+  const editableRef = useRef<HTMLDivElement>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
-  const handleInsertLink = () => {
-    const ta = textareaRef.current;
-    if (!ta) return;
-    const start = ta.selectionStart;
-    const end = ta.selectionEnd;
-    const selectedText = value.slice(start, end);
-    if (!selectedText) { toast.error("Markera text först"); return; }
-    const url = prompt("Ange URL:", "https://");
-    if (!url) return;
-    const before = value.slice(0, start);
-    const after = value.slice(end);
-    onChange(`${before}[${selectedText}](${url})${after}`);
-    setEditMode(false);
+  // Convert markdown value → HTML for contentEditable
+  const toHtml = (text: string): string => {
+    return text
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a class="admin-link" data-url="$2" title="$2">$1</a>')
+      .replace(/\n/g, "<br>");
   };
 
-  const handleEditLink = (oldRaw: string, linkText: string, oldUrl: string) => {
-    const newUrl = prompt("Ändra URL:", oldUrl);
-    if (newUrl === null) return;
-    if (newUrl === "") {
-      // Remove link, keep text
-      onChange(value.replace(oldRaw, linkText));
-    } else {
-      onChange(value.replace(oldRaw, `[${linkText}](${newUrl})`));
+  // Convert HTML back → markdown
+  const toMarkdown = (el: HTMLDivElement): string => {
+    let md = "";
+    const walk = (node: Node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        md += node.textContent || "";
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const tag = (node as HTMLElement).tagName.toLowerCase();
+        if (tag === "br") {
+          md += "\n";
+        } else if (tag === "a") {
+          const url = (node as HTMLElement).getAttribute("data-url") || (node as HTMLAnchorElement).href || "";
+          md += `[${node.textContent || ""}](${url})`;
+        } else {
+          node.childNodes.forEach(walk);
+        }
+      }
+    };
+    el.childNodes.forEach(walk);
+    return md;
+  };
+
+  const handleInput = () => {
+    if (!editableRef.current) return;
+    const md = toMarkdown(editableRef.current);
+    onChange(md);
+  };
+
+  const handleFocus = () => setIsEditing(true);
+  const handleBlur = () => {
+    handleInput();
+    setIsEditing(false);
+  };
+
+  // Sync value → contentEditable only when not editing (to avoid cursor jumps)
+  useEffect(() => {
+    if (!isEditing && editableRef.current) {
+      const html = toHtml(value);
+      if (editableRef.current.innerHTML !== html) {
+        editableRef.current.innerHTML = html;
+      }
+    }
+  }, [value, isEditing]);
+
+  const handleInsertLink = () => {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
+      toast.error("Markera text först");
+      return;
+    }
+    const range = sel.getRangeAt(0);
+    // Make sure selection is within our editable
+    if (!editableRef.current?.contains(range.commonAncestorContainer)) {
+      toast.error("Markera text i fältet först");
+      return;
+    }
+    const selectedText = sel.toString();
+    if (!selectedText.trim()) { toast.error("Markera text först"); return; }
+
+    const url = prompt("Ange URL:", "https://");
+    if (!url) return;
+
+    const link = document.createElement("a");
+    link.className = "admin-link";
+    link.setAttribute("data-url", url);
+    link.title = url;
+    link.textContent = selectedText;
+
+    range.deleteContents();
+    range.insertNode(link);
+    sel.removeAllRanges();
+
+    handleInput();
+  };
+
+  const handleLinkClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.classList.contains("admin-link") || target.closest(".admin-link")) {
+      e.preventDefault();
+      e.stopPropagation();
+      const linkEl = target.classList.contains("admin-link") ? target : target.closest(".admin-link") as HTMLElement;
+      const oldUrl = linkEl.getAttribute("data-url") || "";
+      const newUrl = prompt("Ändra URL (töm för att ta bort länk):", oldUrl);
+      if (newUrl === null) return;
+      if (newUrl === "") {
+        // Unwrap link, keep text
+        const text = document.createTextNode(linkEl.textContent || "");
+        linkEl.parentNode?.replaceChild(text, linkEl);
+      } else {
+        linkEl.setAttribute("data-url", newUrl);
+        linkEl.title = newUrl;
+      }
+      handleInput();
     }
   };
 
-  const handleRemoveLink = (oldRaw: string, linkText: string) => {
-    onChange(value.replace(oldRaw, linkText));
-  };
-
-  // Render the styled preview with clickable links
-  const renderPreview = () => {
-    const lines = value.split("\n");
-    return lines.map((line, li) => (
-      <span key={li}>
-        {li > 0 && <br />}
-        {parseSegments(line).map((seg, si) =>
-          seg.type === "link" ? (
-            <span key={si} className="relative group/link inline">
-              <span
-                className="underline text-red-ink cursor-pointer hover:text-foreground transition-colors"
-                onClick={() => handleEditLink(seg.raw, seg.value, seg.url!)}
-                title={seg.url}
-              >
-                {seg.value}
-              </span>
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); handleRemoveLink(seg.raw, seg.value); }}
-                className="hidden group-hover/link:inline-flex ml-0.5 text-muted-foreground hover:text-red-ink align-middle"
-                title="Ta bort länk"
-              >
-                <X size={10} />
-              </button>
-            </span>
-          ) : (
-            <span key={si}>{seg.value}</span>
-          )
-        )}
-      </span>
-    ));
-  };
-
-  if (editMode) {
-    return (
-      <div>
-        <div className="flex justify-end gap-1 mb-1">
-          <button type="button" onClick={handleInsertLink}
-            className="flex items-center gap-1 text-muted-foreground hover:text-red-ink transition-colors font-mono text-[9px] tracking-[0.1em] uppercase px-2 py-1 border border-border hover:border-red-ink rounded-sm">
-            <LinkIcon size={10} /> Länka
-          </button>
-          <button type="button" onClick={() => setEditMode(false)}
-            className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors font-mono text-[9px] tracking-[0.1em] uppercase px-2 py-1 border border-border rounded-sm">
-            Klar
-          </button>
-        </div>
-        <textarea ref={textareaRef} value={value} onChange={(e) => onChange(e.target.value)} rows={4} autoFocus
-          className="w-full bg-background border border-border px-3 py-2 font-body text-sm text-foreground focus:outline-none focus:border-red-ink resize-y" />
-      </div>
-    );
-  }
-
   return (
     <div>
+      {isEditing && (
+        <div className="flex justify-end gap-1 mb-1">
+          <button type="button" onClick={handleInsertLink}
+            className="flex items-center gap-1 text-muted-foreground hover:text-red-ink transition-colors font-mono text-[9px] tracking-[0.1em] uppercase px-2 py-1 border border-border hover:border-red-ink rounded-sm"
+            onMouseDown={(e) => e.preventDefault()} /* prevent blur */
+          >
+            <LinkIcon size={10} /> Länka
+          </button>
+        </div>
+      )}
       <div
-        onClick={() => setEditMode(true)}
-        className="w-full min-h-[60px] bg-background border border-border px-3 py-2 font-body text-sm text-foreground cursor-text hover:border-foreground/50 transition-colors whitespace-pre-wrap"
-      >
-        {value ? renderPreview() : <span className="text-muted-foreground">Klicka för att redigera...</span>}
-      </div>
+        ref={editableRef}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={handleInput}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        onClick={handleLinkClick}
+        className="w-full min-h-[60px] bg-background border border-border px-3 py-2 font-body text-sm text-foreground focus:outline-none focus:border-red-ink whitespace-pre-wrap [&_.admin-link]:underline [&_.admin-link]:text-red-ink [&_.admin-link]:cursor-pointer hover:[&_.admin-link]:opacity-80"
+        dangerouslySetInnerHTML={{ __html: toHtml(value) }}
+      />
     </div>
   );
 };
